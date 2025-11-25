@@ -5,6 +5,7 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import AllTasksPage from './pages/AllTasksPage';
 import Sidebar from './components/Sidebar';
+import './index.css';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
