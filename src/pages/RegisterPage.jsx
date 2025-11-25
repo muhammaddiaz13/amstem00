@@ -5,24 +5,27 @@ function RegisterPage({ onRegister }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError('');
     if (password !== confirmPassword) {
-      alert('Password dan konfirmasi password tidak cocok!');
+      setError('Password dan konfirmasi password tidak cocok!');
       return;
     }
     if (email && password) {
+      setError('');
       alert('Pendaftaran berhasil (simulasi)!');
       onRegister({ username: email.split('@')[0] });
     } else {
-      alert('Semua field harus diisi.');
+      setError('Semua field harus diisi.');
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
+      <div className="bg-white p-10 rounded-lg shadow-md w-full max-w-sm">
         <h2 className="text-3xl font-semibold text-center text-blue-700 mb-6">Register</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -60,12 +63,15 @@ function RegisterPage({ onRegister }) {
             <input
               type="password"
               id="confirmPassword"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
+              className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+              } bg-gray-50`}
               placeholder="Confirm your password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
+            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
             <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline mt-1 block text-right">
               Forgot Passwords?
             </Link>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
@@ -11,6 +11,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('Anonymous');
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogin = (user) => {
     setIsLoggedIn(true);
@@ -30,27 +31,39 @@ function App() {
     navigate('/login');
   };
 
+  const showSidebar = isLoggedIn && !['/login', '/register'].includes(location.pathname);
+
+  if (showSidebar) {
   return (
     <div className="flex h-screen bg-gray-100">
-      {isLoggedIn && <Sidebar username={username} onLogout={handleLogout} />}
-
-      <div className="flex-1 overflow-auto">
+      <Sidebar username={username} onLogout={handleLogout} />
+      <div className="flex-1 overflow-auto ml-64">
         <Routes>
-          <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
-          <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
-          <Route path="/register" element={<RegisterPage onRegister={handleRegister} />} />
-
-          <Route
-            path="/dashboard"
-            element={isLoggedIn ? <DashboardPage username={username} /> : <LoginPage onLogin={handleLogin} />}
-          />
-          <Route
-            path="/all-tasks"
-            element={isLoggedIn ? <AllTasksPage username={username} /> : <LoginPage onLogin={handleLogin} />}
-          />
-          {/* Tambahkan rute lain di sini nanti */}
+          <Route path="/dashboard" element={<DashboardPage username={username} />} />
+          <Route path="/all-tasks" element={<AllTasksPage username={username} />} />
+          {/* tambahin route lain diisni */}
         </Routes>
       </div>
+    </div>
+  );
+}
+
+  return (
+    <div className="flex-1 overflow-auto">
+      <Routes>
+        <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
+        <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+        <Route path="/register" element={<RegisterPage onRegister={handleRegister} />} />
+    
+        <Route
+          path="/dashboard"
+          element={<LoginPage onLogin={handleLogin} />}
+        />
+        <Route
+          path="/all-tasks"
+          element={<LoginPage onLogin={handleLogin} />}
+        />
+      </Routes>
     </div>
   );
 }
