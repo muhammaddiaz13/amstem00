@@ -14,7 +14,20 @@ function TaskForm({ onSubmit, initialData = {} }) {
       alert('Judul, Kategori, dan Batas Waktu harus diisi!');
       return;
     }
-    onSubmit({ taskTitle, taskDescription, taskCategory, taskStatus, dueDate, priority });
+    onSubmit({ 
+      taskTitle, 
+      taskDescription, 
+      taskCategory, 
+      taskStatus, 
+      dueDate, 
+      priority,
+      // Tambahkan field yang dibutuhkan calendar
+      title: taskTitle, 
+      description: taskDescription, 
+      category: taskCategory, 
+      status: taskStatus, 
+      dueDate: dueDate 
+    });
     if (!initialData.id) { // Reset form jika ini untuk menambah tugas baru
         setTaskTitle('');
         setTaskDescription('');
