@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import AllTasksPage from './pages/AllTasksPage';
+import Calendar from './components/Calendar'; 
 import Sidebar from './components/Sidebar';
 import './index.css';
 
@@ -34,19 +35,20 @@ function App() {
   const showSidebar = isLoggedIn && !['/login', '/register'].includes(location.pathname);
 
   if (showSidebar) {
-  return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar username={username} onLogout={handleLogout} />
-      <div className="flex-1 overflow-auto ml-64">
-        <Routes>
-          <Route path="/dashboard" element={<DashboardPage username={username} />} />
-          <Route path="/all-tasks" element={<AllTasksPage username={username} />} />
-          {/* tambahin route lain diisni */}
-        </Routes>
+    return (
+      <div className="flex h-screen bg-gray-100">
+        <Sidebar username={username} onLogout={handleLogout} />
+        <div className="flex-1 overflow-auto ml-64">
+          <Routes>
+            <Route path="/dashboard" element={<DashboardPage username={username} />} />
+            <Route path="/all-tasks" element={<AllTasksPage username={username} />} />
+            <Route path="/calendar" element={<Calendar />} /> 
+            {/* tambahin route lain diisni */}
+          </Routes>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
     <div className="flex-1 overflow-auto">
@@ -61,6 +63,10 @@ function App() {
         />
         <Route
           path="/all-tasks"
+          element={<LoginPage onLogin={handleLogin} />}
+        />
+        <Route
+          path="/calendar"
           element={<LoginPage onLogin={handleLogin} />}
         />
       </Routes>
