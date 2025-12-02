@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from '../components/Modal';
 import TaskForm from '../components/TaskForm';
 import TaskCard from '../components/TaskCard';
@@ -7,17 +7,41 @@ function DashboardPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tasks, setTasks] = useState([]);
 
+  // Load tasks dari localStorage saat component mount
+  useEffect(() => {
+    const savedTasks = localStorage.getItem('tasks');
+    if (savedTasks) {
+      setTasks(JSON.parse(savedTasks));
+    }
+  }, []);
+
+  // Save tasks ke localStorage setiap kali tasks berubah
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }, [tasks]);
+
   const handleAddTask = (newTask) => {
-    setTasks([...tasks, { ...newTask, id: Date.now(), status: 'Unfinished', progress: 0 }]);
+    const taskWithId = { 
+      ...newTask, 
+      id: Date.now(), 
+      status: 'Unfinished', 
+      progress: 0 
+    };
+    const updatedTasks = [...tasks, taskWithId];
+    setTasks(updatedTasks);
     setIsModalOpen(false);
   };
 
   const handleUpdateTask = (updatedTask) => {
-    setTasks(tasks.map(task => task.id === updatedTask.id ? updatedTask : task));
+    const updatedTasks = tasks.map(task => 
+      task.id === updatedTask.id ? updatedTask : task
+    );
+    setTasks(updatedTasks);
   };
 
   const handleDeleteTask = (taskId) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
+    const updatedTasks = tasks.filter(task => task.id !== taskId);
+    setTasks(updatedTasks);
   };
 
   return (
