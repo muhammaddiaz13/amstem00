@@ -7,6 +7,7 @@ import AllTasksPage from './pages/AllTasksPage';
 import Calendar from './components/Calendar'; 
 import Sidebar from './components/Sidebar';
 import './index.css';
+import Tour from './components/Tour';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -32,8 +33,9 @@ function App() {
     navigate('/login');
   };
 
-  const showSidebar = isLoggedIn && !['/login', '/register'].includes(location.pathname);
-
+  // const showSidebar = isLoggedIn && !['/login', '/register'].includes(location.pathname);
+  const showSidebar = true;
+  
   if (showSidebar) {
     return (
       <div className="flex h-screen bg-gray-100">

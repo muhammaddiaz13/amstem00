@@ -36,6 +36,8 @@ function AllTasksPage() {
       <div className="flex gap-4 mb-6">
         <select className="p-2 border rounded-md">
           <option>All Priorities</option>
+          <option>High to Low</option>
+          <option>Low to High</option>
           <option>High</option>
           <option>Medium</option>
           <option>Low</option>
