@@ -6,6 +6,7 @@ import DashboardPage from './pages/DashboardPage';
 import AllTasksPage from './pages/AllTasksPage';
 import Sidebar from './components/Sidebar';
 import './index.css';
+import Tour from './components/Tour';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -31,13 +32,16 @@ function App() {
     navigate('/login');
   };
 
-  const showSidebar = isLoggedIn && !['/login', '/register'].includes(location.pathname);
-
+  // const showSidebar = isLoggedIn && !['/login', '/register'].includes(location.pathname);
+  const showSidebar = true;
+  
   if (showSidebar) {
+    // console.log("LOGGED-IN LAYOUT IS ACTIVE");
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar username={username} onLogout={handleLogout} />
-      <div className="flex-1 overflow-auto ml-64">
+      <Sidebar username={username} onLogout={handleLogout} />a
+      <div className="flex-1 overflow-auto ml-64 relative">
+        <Tour/>
         <Routes>
           <Route path="/dashboard" element={<DashboardPage username={username} />} />
           <Route path="/all-tasks" element={<AllTasksPage username={username} />} />
