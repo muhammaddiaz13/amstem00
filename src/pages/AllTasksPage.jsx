@@ -89,31 +89,10 @@ function AllTasksPage() {
         </button>
       </div>
 
-      {/* Filter dan Sorting Options */}
-      <div className="flex gap-4 mb-6">
-        <select className="p-2 border rounded-md">
-          <option>All Priorities</option>
-          <option>High to Low</option>
-          <option>Low to High</option>
-          <option>High</option>
-          <option>Medium</option>
-          <option>Low</option>
-        </select>
-        <select className="p-2 border rounded-md">
-          <option>All Categories</option>
-          <option>Personal</option>
-          <option>Work</option>
-          <option>Shopping</option>
-        </select>
-        <select className="p-2 border rounded-md">
-          <option>Unfinished</option>
-          <option>Finished</option>
-        </select>
-        <select className="p-2 border rounded-md">
-          <option>The Latest</option>
-          <option>The Oldest</option>
-        </select>
-        <div className="relative flex-grow">
+      {/* Search dan Filter Section */}
+      <div className="mb-6 space-y-4">
+        {/* Search Bar */}
+        <div className="relative">
           <input
             type="text"
             placeholder="Search tasks..."

@@ -39,8 +39,9 @@ function App() {
   if (showSidebar) {
     return (
       <div className="flex h-screen bg-gray-100">
-        <Sidebar username={username} onLogout={handleLogout} />
-        <div className="flex-1 overflow-auto ml-64">
+        <Sidebar username={username} onLogout={handleLogout} />a
+          <div className="flex-1 overflow-auto ml-64 relative">
+          <Tour/>
           <Routes>
             <Route path="/dashboard" element={<DashboardPage username={username} />} />
             <Route path="/all-tasks" element={<AllTasksPage username={username} />} />
