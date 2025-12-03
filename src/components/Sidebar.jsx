@@ -28,7 +28,7 @@ function Sidebar({ username, onLogout }) {
         </div>
 
         {/* isi sidebar */}
-        <div className="overflow-y-auto flex-grow p-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="sidebar-scroll overflow-y-auto flex-grow p-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <div className="flex items-center mb-6">
             <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 font-bold text-lg mr-3">
               {username ? username[0].toUpperCase() : 'A'}
@@ -42,7 +42,7 @@ function Sidebar({ username, onLogout }) {
           </div>
 
           <nav className="space-y-2">
-            <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Main</h3>
+            <h3 className="main text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Main</h3>
             <NavLink to="/dashboard" className={navLinkClasses}>
               <span className="mr-3 text-lg">📊</span> Dashboards
             </NavLink>
@@ -56,7 +56,7 @@ function Sidebar({ username, onLogout }) {
               <span className="mr-3 text-lg">📅</span> Calendar
             </NavLink>
 
-            <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wider mt-6 mb-2">Collaboration</h3>
+            <h3 className="collab text-xs font-medium text-gray-400 uppercase tracking-wider mt-6 mb-2">Collaboration</h3>
             <NavLink to="/team" className={navLinkClasses}>
               <span className="mr-3 text-lg">👥</span> Team
             </NavLink>
@@ -64,7 +64,7 @@ function Sidebar({ username, onLogout }) {
               <span className="mr-3 text-lg">🔗</span> Shared tasks
             </NavLink>
 
-            <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wider mt-6 mb-2">Category</h3>
+            <h3 className="category text-xs font-medium text-gray-400 uppercase tracking-wider mt-6 mb-2">Category</h3>
             <NavLink to="/personal" className={navLinkClasses}>
               <span className="mr-3 text-lg">👤</span> Personal
             </NavLink>
@@ -87,7 +87,7 @@ function Sidebar({ username, onLogout }) {
           </button>
 
           <button
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors duration-300 font-semibold flex items-center justify-center mt-2"
+            className="new-assignments w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors duration-300 font-semibold flex items-center justify-center mt-2"
             onClick={() => setIsModalOpen(true)}
           >
             <span className="mr-2 text-xl">+</span> new assignments
