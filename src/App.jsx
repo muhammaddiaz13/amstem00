@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import LoginRequiredModal from './components/LoginRequiredModal';
 import { AuthProvider } from './contexts/AuthContext';
+import { Toaster } from 'react-hot-toast';
 
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -15,6 +16,8 @@ import CategoryPage from './pages/CategoryPage'; // Import komponen baru
 
 const AppLayout = () => {
   return (
+    <>
+    <Toaster position="top-center" />
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 overflow-auto ml-64 relative">
@@ -22,6 +25,7 @@ const AppLayout = () => {
         <LoginRequiredModal />
       </div>
     </div>
+    </>
   );
 };
 
