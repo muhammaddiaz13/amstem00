@@ -1,170 +1,115 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import TaskCard from '../components/TaskCard';
 import Modal from '../components/Modal';
 import TaskForm from '../components/TaskForm';
-import TaskCard from '../components/TaskCard';
 
-function AllTasksPage() {
+const AllTasksPage = () => {
+  const { user, openLoginModal } = useAuth();
+  
+  // FIX: Initialize state directly from localStorage
+  const [tasks, setTasks] = useState(() => {
+    const saved = localStorage.getItem('tasks');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [tasks, setTasks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [priorityFilter, setPriorityFilter] = useState('All Priorities');
-  const [categoryFilter, setCategoryFilter] = useState('All Categories');
-  const [statusFilter, setStatusFilter] = useState('Unfinished');
-  const [sortOrder, setSortOrder] = useState('The Latest');
+  
+  const [priorityFilter, setPriorityFilter] = useState('All');
+  const [categoryFilter, setCategoryFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
 
-  // Load tasks dari localStorage
-  useEffect(() => {
-    const savedTasks = localStorage.getItem('tasks');
-    if (savedTasks) setTasks(JSON.parse(savedTasks));
-  }, []);
-
-  // Save tasks ke localStorage
+  // Sync state to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  // Filter dan sort tasks
-  const filteredTasks = tasks
-    .filter(task => {
-      // Filter berdasarkan search
-      const matchesSearch = 
-        task.taskTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.taskDescription.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      // Filter berdasarkan priority
-      const matchesPriority = 
-        priorityFilter === 'All Priorities' || 
-        task.priority === priorityFilter;
-      
-      // Filter berdasarkan category
-      const matchesCategory = 
-        categoryFilter === 'All Categories' || 
-        task.category === categoryFilter;
-      
-      // Filter berdasarkan status
-      const matchesStatus = 
-        statusFilter === 'Unfinished' ? task.status === 'Unfinished' : 
-        statusFilter === 'Finished' ? task.status === 'Finished' : true;
-      
-      return matchesSearch && matchesPriority && matchesCategory && matchesStatus;
-    })
-    .sort((a, b) => {
-      // Sort berdasarkan tanggal (asumsi ada field createdAt)
-      if (sortOrder === 'The Latest') {
-        return new Date(b.createdAt || b.id) - new Date(a.createdAt || a.id);
-      } else {
-        return new Date(a.createdAt || a.id) - new Date(b.createdAt || b.id);
-      }
-    });
+  const handleAddTaskClick = () => {
+    if (!user) openLoginModal();
+    else setIsModalOpen(true);
+  };
 
   const handleAddTask = (newTask) => {
-    const taskWithId = { 
-      ...newTask, 
-      id: Date.now(), 
-      status: 'Unfinished', 
-      progress: 0,
-      createdAt: new Date().toISOString()
+    const taskWithId = {
+      ...newTask,
+      id: Date.now(),
+      taskStatus: 'Unfinished', 
+      progress: 0
     };
     setTasks([...tasks, taskWithId]);
     setIsModalOpen(false);
   };
 
   const handleUpdateTask = (updatedTask) => {
-    setTasks(tasks.map(task => task.id === updatedTask.id ? updatedTask : task));
+    setTasks(tasks.map(t => t.id === updatedTask.id ? updatedTask : t));
   };
 
   const handleDeleteTask = (taskId) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
+    setTasks(tasks.filter(t => t.id !== taskId));
   };
 
+  const filteredTasks = tasks.filter(task => {
+    const matchesSearch = task.taskTitle.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesPriority = priorityFilter === 'All' || task.priority === priorityFilter;
+    const matchesCategory = categoryFilter === 'All' || task.taskCategory === categoryFilter;
+    const matchesStatus = statusFilter === 'All' || task.taskStatus === statusFilter;
+    return matchesSearch && matchesPriority && matchesCategory && matchesStatus;
+  });
+
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">All Tasks</h1>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-colors duration-300 flex items-center"
-        >
-          <span className="mr-2 text-xl">+</span> new assignments
+    <div className="p-8 md:p-12 bg-gray-50/50 min-h-full">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">All Tasks</h1>
+        <button onClick={handleAddTaskClick} className="bg-gray-800 text-white px-5 py-2.5 rounded-lg hover:bg-gray-900 transition-all font-medium">
+          + Add New
         </button>
       </div>
 
-      {/* Search dan Filter Section */}
-      <div className="mb-6 space-y-4">
-        {/* Search Bar */}
-        <div className="relative">
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-8 space-y-4 md:space-y-0 md:flex md:gap-4 md:items-center">
+        <div className="relative flex-grow">
           <input
             type="text"
-            placeholder="Search tasks..."
-            className="w-full p-3 pl-10 border rounded-md"
+            placeholder="Search assignments..."
+            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+          <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
         </div>
+        
+        <select className="px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm" onChange={(e) => setPriorityFilter(e.target.value)}>
+          <option value="All">All Priorities</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
 
-        {/* Filter Options */}
-        <div className="flex flex-wrap gap-4">
-          <select 
-            className="p-2 border rounded-md bg-white"
-            value={priorityFilter}
-            onChange={(e) => setPriorityFilter(e.target.value)}
-          >
-            <option>All Priorities</option>
-            <option>High</option>
-            <option>Medium</option>
-            <option>Low</option>
-          </select>
-          
-          <select 
-            className="p-2 border rounded-md bg-white"
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-          >
-            <option>All Categories</option>
-            <option>Personal</option>
-            <option>Work</option>
-            <option>Shopping</option>
-          </select>
-          
-          <select 
-            className="p-2 border rounded-md bg-white"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option>Unfinished</option>
-            <option>Finished</option>
-          </select>
-          
-          <select 
-            className="p-2 border rounded-md bg-white"
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-          >
-            <option>The Latest</option>
-            <option>The Oldest</option>
-          </select>
-        </div>
+        <select className="px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm" onChange={(e) => setStatusFilter(e.target.value)}>
+          <option value="All">All Status</option>
+          <option value="Unfinished">Unfinished</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Finished">Finished</option>
+        </select>
       </div>
 
-      {filteredTasks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-64 bg-white rounded-lg shadow-md">
-          <p className="text-xl text-gray-600 font-medium">No tasks found.</p>
-          <p className="text-md text-gray-500 mt-2">Add new tasks to see them here.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {filteredTasks.map(task => (
-            <TaskCard key={task.id} task={task} onUpdate={handleUpdateTask} onDelete={handleDeleteTask} />
-          ))}
-        </div>
-      )}
+      <div className="grid grid-cols-1 gap-4">
+        {filteredTasks.map(task => (
+          <TaskCard 
+            key={task.id} 
+            task={task} 
+            onUpdate={handleUpdateTask} 
+            onDelete={handleDeleteTask} 
+          />
+        ))}
+        {filteredTasks.length === 0 && <p className="text-center text-gray-500 py-10">No tasks match your filters.</p>}
+      </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="New Task">
         <TaskForm onSubmit={handleAddTask} />
       </Modal>
     </div>
   );
-}
+};
 
 export default AllTasksPage;

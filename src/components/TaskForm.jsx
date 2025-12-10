@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function TaskForm({ onSubmit, initialData = {} }) {
+const TaskForm = ({ onSubmit, initialData = {} }) => {
   const [taskTitle, setTaskTitle] = useState(initialData.taskTitle || '');
   const [taskDescription, setTaskDescription] = useState(initialData.taskDescription || '');
   const [taskCategory, setTaskCategory] = useState(initialData.taskCategory || '');
@@ -11,44 +11,31 @@ function TaskForm({ onSubmit, initialData = {} }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!taskTitle || !taskCategory || !dueDate) {
-      alert('Judul, Kategori, dan Batas Waktu harus diisi!');
+      alert('Title, Category, and Due Date are required!');
       return;
     }
-    onSubmit({ 
-      taskTitle, 
-      taskDescription, 
-      taskCategory, 
-      taskStatus, 
-      dueDate, 
+
+    onSubmit({
+      taskTitle,
+      taskDescription,
+      taskCategory,
+      taskStatus,
+      dueDate,
       priority,
-      // Tambahkan field yang dibutuhkan calendar
-      title: taskTitle, 
-      description: taskDescription, 
-      category: taskCategory, 
-      status: taskStatus, 
-      dueDate: dueDate 
     });
-    if (!initialData.id) { // Reset form jika ini untuk menambah tugas baru
-        setTaskTitle('');
-        setTaskDescription('');
-        setTaskCategory('');
-        setTaskStatus('Unfinished');
-        setDueDate('');
-        setPriority('Medium');
-    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label htmlFor="taskTitle" className="block text-sm font-medium text-gray-700 mb-1">
-          Task title
+        <label htmlFor="taskTitle" className="block text-sm font-medium text-gray-700 mb-1.5">
+          Assignment Title <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
           id="taskTitle"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
-          placeholder="Enter the assignment title"
+          className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 transition-all"
+          placeholder="e.g. Complete Calculus Homework"
           value={taskTitle}
           onChange={(e) => setTaskTitle(e.target.value)}
           required
@@ -56,99 +43,97 @@ function TaskForm({ onSubmit, initialData = {} }) {
       </div>
 
       <div>
-        <label htmlFor="taskDescription" className="block text-sm font-medium text-gray-700 mb-1">
-          Task description
+        <label htmlFor="taskDescription" className="block text-sm font-medium text-gray-700 mb-1.5">
+          Description
         </label>
         <textarea
           id="taskDescription"
-          rows="3"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
-          placeholder="Enter a Description"
+          rows={3}
+          className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 transition-all resize-none"
+          placeholder="Add details about this assignment..."
           value={taskDescription}
           onChange={(e) => setTaskDescription(e.target.value)}
         ></textarea>
       </div>
 
-      <div>
-        <label htmlFor="taskCategory" className="block text-sm font-medium text-gray-700 mb-1">
-          Task Category
-        </label>
-        <select
-          id="taskCategory"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
-          value={taskCategory}
-          onChange={(e) => setTaskCategory(e.target.value)}
-          required
-        >
-          <option value="">-- Select Category --</option>
-          <option value="Personal">Personal</option>
-          <option value="Work">Work</option>
-          <option value="Shopping">Shopping</option>
-        </select>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="taskCategory" className="block text-sm font-medium text-gray-700 mb-1.5">
+            Category <span className="text-red-500">*</span>
+          </label>
+          <select
+            id="taskCategory"
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 transition-all appearance-none"
+            value={taskCategory}
+            onChange={(e) => setTaskCategory(e.target.value)}
+            required
+          >
+            <option value="">Select...</option>
+            <option value="Personal">Personal</option>
+            <option value="Work">Work</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1.5">
+            Priority
+          </label>
+          <select
+            id="priority"
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 transition-all appearance-none"
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+          >
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+        </div>
       </div>
 
-      <div>
-        <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">
-          Priority
-        </label>
-        <select
-          id="priority"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
-          value={priority}
-          onChange={(e) => setPriority(e.target.value)}
-        >
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="taskStatus" className="block text-sm font-medium text-gray-700 mb-1.5">
+            Status
+          </label>
+          <select
+            id="taskStatus"
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 transition-all appearance-none"
+            value={taskStatus}
+            onChange={(e) => setTaskStatus(e.target.value)}
+          >
+            <option value="Unfinished">Unfinished</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Finished">Finished</option>
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 mb-1.5">
+            Due Date <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="date"
+            id="dueDate"
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 transition-all"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            required
+          />
+        </div>
       </div>
 
-      <div>
-        <label htmlFor="taskStatus" className="block text-sm font-medium text-gray-700 mb-1">
-          Task Status
-        </label>
-        <select
-          id="taskStatus"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
-          value={taskStatus}
-          onChange={(e) => setTaskStatus(e.target.value)}
-        >
-          <option value="Unfinished">Unfinished</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Finished">Finished</option>
-        </select>
-      </div>
-
-      <div>
-        <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 mb-1">
-          Due date
-        </label>
-        <input
-          type="date"
-          id="dueDate"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          required
-        />
-      </div>
-
-      <div className="flex justify-end gap-3 mt-6">
-        <button
-          type="button"
-          className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition-colors duration-300 font-semibold"
-        >
-          Back
-        </button>
+      <div className="flex justify-end gap-3 mt-8 border-t border-gray-100 pt-5">
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300 font-semibold"
+          className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 font-semibold shadow-lg shadow-blue-200"
         >
-          Finished
+          {initialData.id ? 'Save Changes' : 'Create Assignment'}
         </button>
       </div>
     </form>
   );
-}
+};
 
 export default TaskForm;
