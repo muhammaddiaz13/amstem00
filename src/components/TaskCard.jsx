@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Modal from './Modal';
 import TaskForm from './TaskForm';
 import { useAuth } from '../contexts/AuthContext';
+import { ConfirmToast } from "./ConfirmToast";
 
 const TaskCard = ({ task, onUpdate, onDelete }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -36,9 +37,9 @@ const TaskCard = ({ task, onUpdate, onDelete }) => {
     if (!user) {
       openLoginModal();
     } else {
-      if (window.confirm('Are you sure you want to delete this task?')) {
-        onDelete(task.id);
-      }
+      ConfirmToast(
+      "Are you sure you want to delete this task?",
+      () => onDelete(task.id));
     }
   };
 

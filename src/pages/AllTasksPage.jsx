@@ -49,13 +49,27 @@ const AllTasksPage = () => {
     setTasks(tasks.filter(t => t.id !== taskId));
   };
 
+  const priorityOrder = { High: 3, Medium: 2, Low: 1 };
+
   const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.taskTitle.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesPriority = priorityFilter === 'All' || task.priority === priorityFilter;
     const matchesCategory = categoryFilter === 'All' || task.taskCategory === categoryFilter;
     const matchesStatus = statusFilter === 'All' || task.taskStatus === statusFilter;
+
+    const matchesPriority =
+    priorityFilter === 'All' ||
+    priorityFilter === 'HighToLow' ||
+    priorityFilter === 'LowToHigh' ||
+    task.priority === priorityFilter;
+
     return matchesSearch && matchesPriority && matchesCategory && matchesStatus;
   });
+
+  if (priorityFilter === 'HighToLow') {
+    filteredTasks.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
+  } else if (priorityFilter === 'LowToHigh') {
+    filteredTasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+  }
 
   return (
     <div className="p-8 md:p-12 bg-gray-50/50 min-h-full">
@@ -83,6 +97,8 @@ const AllTasksPage = () => {
           <option value="High">High</option>
           <option value="Medium">Medium</option>
           <option value="Low">Low</option>
+          <option value="HighToLow">High to Low</option>
+          <option value="LowToHigh">Low to High</option>
         </select>
 
         <select className="px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm" onChange={(e) => setStatusFilter(e.target.value)}>

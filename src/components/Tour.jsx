@@ -63,16 +63,7 @@ export default function Tour() {
         }}/>
 
       <div
-        className="
-          fixed 
-          bg-white 
-          text-gray-900 
-          p-4 
-          rounded-lg 
-          shadow-lg 
-          w-56 
-          z-[1000]
-        "
+        className="fixed bg-white text-gray-900 p-4 rounded-lg shadow-lg w-56 z-[1000]"
         style={{
         top: rect.top + window.scrollY,            
         left: rect.right + window.scrollX + 10 

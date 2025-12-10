@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Modal from './Modal';
 import TaskForm from './TaskForm';
+import { ConfirmToast } from "./ConfirmToast";
 
 const Sidebar = () => {
   const { user, logout, openLoginModal } = useAuth();
@@ -36,9 +37,9 @@ const Sidebar = () => {
 
   const handleAuthAction = () => {
     if (user) {
-      if(window.confirm("Are you sure you want to logout?")) {
-        logout();
-      }
+        ConfirmToast(
+        "Are you sure you want to logout?",
+        () => logout());
     } else {
       navigate('/login');
     }

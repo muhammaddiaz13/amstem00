@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 
 const TaskForm = ({ onSubmit, initialData = {} }) => {
   const [taskTitle, setTaskTitle] = useState(initialData.taskTitle || '');
@@ -15,14 +16,23 @@ const TaskForm = ({ onSubmit, initialData = {} }) => {
       return;
     }
 
-    onSubmit({
-      taskTitle,
-      taskDescription,
-      taskCategory,
-      taskStatus,
-      dueDate,
-      priority,
-    });
+    const toastId = toast.loading("Adding task...");
+
+    try{
+      onSubmit({
+        taskTitle,
+        taskDescription,
+        taskCategory,
+        taskStatus,
+        dueDate,
+        priority,
+      });
+      toast.success('Assignment added!', { id: toastId });
+    }catch(error){
+      toast.error("Task failed to be added", { id: toastId });
+    }
+
+
   };
 
   return (
