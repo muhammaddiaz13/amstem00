@@ -1,50 +1,83 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import Modal from '../components/Modal';
-import TaskForm from '../components/TaskForm';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import Modal from './Modal';
+import TaskForm from './TaskForm';
 
-function Sidebar({ username, onLogout }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [tasks, setTasks] = useState([]);
+const Sidebar = () => {
+  const { user, logout, openLoginModal } = useAuth();
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navLinkClasses = ({ isActive }) =>
-    `flex items-center p-3 rounded-lg transition-colors duration-200 ${
-      isActive ? 'bg-blue-200 text-blue-800 font-semibold' : 'text-gray-700 hover:bg-blue-100'
+    `flex items-center p-3 rounded-lg transition-all duration-200 ${
+      isActive
+        ? 'bg-blue-50 text-blue-700 font-semibold shadow-sm'
+        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
     }`;
 
-  const handleAddTask = (newTask) => {
-    setTasks([...tasks, { ...newTask, id: Date.now(), status: 'Unfinished', progress: 0 }]);
-    setIsModalOpen(false);
+  const handleNewAssignmentClick = () => {
+    if (!user) {
+      openLoginModal();
+    } else {
+      setIsTaskModalOpen(true);
+    }
+  };
+
+  const handleTaskSubmit = (task) => {
+    const existing = JSON.parse(localStorage.getItem('tasks') || '[]');
+    const newTask = { ...task, id: Date.now(), taskStatus: 'Unfinished', progress: 0 };
+    localStorage.setItem('tasks', JSON.stringify([...existing, newTask]));
+    
+    // Force a reload to refresh tasks
+    window.location.reload(); 
+    setIsTaskModalOpen(false);
+  };
+
+  const handleAuthAction = () => {
+    if (user) {
+      if(window.confirm("Are you sure you want to logout?")) {
+        logout();
+      }
+    } else {
+      navigate('/login');
+    }
   };
 
   return (
     <>
-      <div className="w-64 bg-white shadow-lg flex flex-col fixed top-0 left-0 h-screen">
-        
-        {/* section atas */}
-        <div className="p-5 border-b border-gray-200 flex-shrink-0">
-          <h1 className="text-2xl font-bold text-blue-700">AMStem</h1>
-          <p className="text-sm text-gray-500 mt-1">Assignment Management System</p>
+      <div className="w-64 bg-white border-r border-gray-200 flex flex-col fixed top-0 left-0 h-screen z-30">
+        {/* Header */}
+        <div className="p-6 border-b border-gray-100 flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">A</div>
+            <h1 className="text-2xl font-bold text-gray-800 tracking-tight">AMStem</h1>
+          </div>
+          <p className="text-xs text-gray-400 mt-1 font-medium">Assignment Management System</p>
         </div>
 
-        {/* isi sidebar */}
-        <div className="sidebar-scroll overflow-y-auto flex-grow p-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <div className="flex items-center mb-6">
-            <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 font-bold text-lg mr-3">
-              {username ? username[0].toUpperCase() : 'A'}
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto flex-grow p-4 no-scrollbar">
+          {/* User Profile Snippet */}
+          <div className="flex items-center mb-8 p-3 bg-gray-50 rounded-xl border border-gray-100">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-3 shadow-sm ${user ? 'bg-blue-100 text-blue-600' : 'bg-gray-200 text-gray-500'}`}>
+              {user ? user.username[0].toUpperCase() : '?'}
             </div>
-            <div>
-              <p className="font-semibold text-gray-800">{username}</p>
-              <p className="text-sm text-gray-500">
-                <span className="text-xs text-green-500">●</span> Online
+            <div className="overflow-hidden">
+              <p className="font-semibold text-gray-800 truncate text-sm">
+                {user ? user.username : 'Anonymous'}
               </p>
+              <div className="flex items-center mt-0.5">
+                <span className={`w-2 h-2 rounded-full mr-1.5 ${user ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                <p className="text-xs text-gray-500">{user ? 'Online' : 'Guest Mode'}</p>
+              </div>
             </div>
           </div>
 
-          <nav className="space-y-2">
-            <h3 className="main text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Main</h3>
+          <nav className="space-y-1">
+            <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-2">Main</p>
             <NavLink to="/dashboard" className={navLinkClasses}>
-              <span className="mr-3 text-lg">📊</span> Dashboards
+              <span className="mr-3 text-lg">📊</span> Dashboard
             </NavLink>
             <NavLink to="/all-tasks" className={navLinkClasses}>
               <span className="mr-3 text-lg">📝</span> All Tasks
@@ -55,54 +88,53 @@ function Sidebar({ username, onLogout }) {
             <NavLink to="/calendar" className={navLinkClasses}>
               <span className="mr-3 text-lg">📅</span> Calendar
             </NavLink>
-
-            <h3 className="collab text-xs font-medium text-gray-400 uppercase tracking-wider mt-6 mb-2">Collaboration</h3>
+            
+            <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-6">Collaboration</p>
             <NavLink to="/team" className={navLinkClasses}>
               <span className="mr-3 text-lg">👥</span> Team
             </NavLink>
-            <NavLink to="/shared-tasks" className={navLinkClasses}>
-              <span className="mr-3 text-lg">🔗</span> Shared tasks
-            </NavLink>
 
-            <h3 className="category text-xs font-medium text-gray-400 uppercase tracking-wider mt-6 mb-2">Category</h3>
+            <p className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-6">Categories</p>
             <NavLink to="/personal" className={navLinkClasses}>
               <span className="mr-3 text-lg">👤</span> Personal
             </NavLink>
             <NavLink to="/work" className={navLinkClasses}>
               <span className="mr-3 text-lg">💼</span> Work
             </NavLink>
-            <NavLink to="/shopping" className={navLinkClasses}>
-              <span className="mr-3 text-lg">🛍️</span> Shopping
+            <NavLink to="/others" className={navLinkClasses}>
+              <span className="mr-3 text-lg">📦</span> Others
             </NavLink>
           </nav>
         </div>
 
-        {/* section bawah */}
-        <div className="p-4 border-t border-gray-200 flex-shrink-0">
-          <button
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors duration-300 font-semibold flex items-center justify-center"
-            onClick={onLogout}
+        {/* Footer Actions */}
+        <div className="p-4 border-t border-gray-100 flex-shrink-0 space-y-3">
+           <button
+            className="new-assignments w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg transition-all duration-300 font-semibold flex items-center justify-center shadow-lg shadow-blue-200 hover:shadow-blue-300"
+            onClick={handleNewAssignmentClick}
           >
-            Logout
+            <span className="mr-2 text-lg font-bold">+</span> New Assignment
           </button>
 
           <button
-            className="new-assignments w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors duration-300 font-semibold flex items-center justify-center mt-2"
-            onClick={() => setIsModalOpen(true)}
+            className={`w-full py-2.5 rounded-lg transition-colors duration-300 font-semibold flex items-center justify-center border ${
+              user 
+              ? 'bg-red-50 text-red-600 border-red-100 hover:bg-red-100' 
+              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+            }`}
+            onClick={handleAuthAction}
           >
-            <span className="mr-2 text-xl">+</span> new assignments
+            {user ? 'Logout' : 'Login'}
           </button>
-
-          <div className="text-center text-sm text-blue-700 font-semibold mt-3">AMStem</div>
         </div>
       </div>
 
-      {/* MODAL */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="New Task">
-        <TaskForm onSubmit={handleAddTask} />
+      {/* Modals */}
+      <Modal isOpen={isTaskModalOpen} onClose={() => setIsTaskModalOpen(false)} title="New Task">
+        <TaskForm onSubmit={handleTaskSubmit} />
       </Modal>
     </>
   );
-}
+};
 
 export default Sidebar;

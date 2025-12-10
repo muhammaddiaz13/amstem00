@@ -1,72 +1,92 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { authService } from '../services/authService';
 
-function LoginPage({ onLogin }) {
+const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email && password) {
-      alert('Login berhasil (simulasi)!');
-      onLogin({ username: email.split('@')[0] });
-    } else {
-      alert('Email dan password harus diisi.');
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const user = await authService.login(email, password);
+      login(user);
+      navigate('/dashboard');
+    } catch (err) {
+      setError('Login failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="bg-white p-10 rounded-lg shadow-md w-full max-w-sm">
-        <h2 className="text-3xl font-semibold text-center text-blue-700 mb-6">Login</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-2">
-              Email Address
-            </label>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+      <div className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-sm border border-gray-100">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-blue-600 mb-1">AMStem</h1>
+          <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
+          <p className="text-gray-400 text-sm mt-2">Please enter your details to sign in.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {error && <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg text-center">{error}</div>}
+          
+          <div>
+            <label className="block text-gray-700 text-sm font-semibold mb-2">Email Address</label>
             <input
               type="email"
-              id="email"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
-              placeholder="Your email"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 transition-all"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
-          <div className="mb-6">
-            <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-2">
-              Password
-            </label>
+          
+          <div>
+            <label className="block text-gray-700 text-sm font-semibold mb-2">Password</label>
             <input
               type="password"
-              id="password"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
-              placeholder="Your password"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 transition-all"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline mt-1 block text-right">
-              Forgot Passwords?
-            </Link>
           </div>
+
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors duration-300 font-semibold"
+            disabled={isLoading}
+            className="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition-all duration-300 font-bold shadow-lg shadow-blue-200 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Login
+            {isLoading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
-        <p className="text-center text-gray-600 text-sm mt-4">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-blue-600 hover:underline">
-            Register
+
+        <div className="mt-8 text-center text-sm text-gray-500">
+          <p>Don't have an account?</p>
+          <Link to="/register" className="text-blue-600 hover:text-blue-700 font-bold hover:underline">
+            Create an account
           </Link>
-        </p>
+          <div className="mt-4">
+            <Link to="/dashboard" className="text-gray-400 hover:text-gray-600 text-xs">
+              Continue as Guest
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default LoginPage;
