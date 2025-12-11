@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:match*",
+      "destination": "https://amstem00-production-6448.up.railway.app/api/:match*"
+    }
+  ]
+}

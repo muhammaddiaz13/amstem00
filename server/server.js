@@ -16,7 +16,8 @@ app.use(cors({
     'http://localhost:5173',                         // Localhost Frontend
     'http://localhost:3000',                         // Localhost Backend test
     'https://amstem.vercel.app',                     // Production Vercel
-    'https://amstem-git-amstem-willy-muhammaddiazs-projects.vercel.app' // Preview Vercel (Branch willy)
+    'https://amstem-git-amstem-willy-muhammaddiazs-projects.vercel.app', // Preview Vercel (Branch willy)
+    'https://amstem00-production.up.railway.app' // Production Railway (Jika perlu akses silang)
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

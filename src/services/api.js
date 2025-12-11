@@ -1,9 +1,11 @@
 import axios from 'axios';
 
-// Domain Railway Production (Port 3000)
-const API_URL = 'https://amstem00-production-6448.up.railway.app/api'; 
+// Kita ubah menjadi relative path '/api'.
+// Vercel (Production) atau Vite (Local) akan mem-proxy request ini ke Railway.
+// Ini membypass masalah CORS karena browser mengira kita request ke domain yang sama.
+const API_URL = '/api';
 
-console.log("🔗 Connecting to API:", API_URL);
+console.log("🔗 Connecting to API via Proxy:", API_URL);
 
 const api = axios.create({
   baseURL: API_URL,
