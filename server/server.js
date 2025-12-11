@@ -10,7 +10,19 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors()); // Izinkan Frontend mengakses Backend
+// UPDATE: Konfigurasi CORS agar Vercel bisa mengakses Railway
+app.use(cors({
+  origin: [
+    'http://localhost:5173',                         // Localhost Frontend
+    'http://localhost:3000',                         // Localhost Backend test
+    'https://amstem.vercel.app',                     // Production Vercel
+    'https://amstem-git-amstem-willy-muhammaddiazs-projects.vercel.app' // Preview Vercel (Branch willy)
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json()); // Izinkan membaca data JSON dari body request
 
 // Logging sederhana untuk debugging di Railway
