@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { authService } from '../services/authService';
+import { useAuth } from '../contexts/AuthContext.jsx';
+import { authService } from '../services/authService.js';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -18,12 +18,28 @@ const LoginPage = () => {
     setError('');
 
     try {
+      console.log("Attempting login...");
       const user = await authService.login(email, password);
+      console.log("Login success:", user);
       login(user);
       navigate('/dashboard');
     } catch (err) {
-      // Ambil pesan error spesifik dari backend jika ada
-      const message = err.response?.data?.message || 'Login failed. Please check your credentials.';
+      console.error("Login Error Full Object:", err);
+      
+      let message = 'Login failed.';
+      
+      if (err.response) {
+        if (err.response.data) {
+          message = err.response.data.message || err.response.data.error || JSON.stringify(err.response.data);
+        } else {
+          message = `Server error: ${err.response.status}`;
+        }
+      } else if (err.request) {
+        message = 'Cannot connect to server. Check your internet or CORS configuration.';
+      } else {
+        message = err.message;
+      }
+
       setError(message);
     } finally {
       setIsLoading(false);
@@ -41,8 +57,8 @@ const LoginPage = () => {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg text-center border border-red-100 flex items-center justify-center gap-2">
-              <i className="fas fa-exclamation-circle"></i> {error}
+            <div className="p-3 bg-red-50 text-red-600 text-xs rounded-lg text-center break-words border border-red-100">
+               {error}
             </div>
           )}
           

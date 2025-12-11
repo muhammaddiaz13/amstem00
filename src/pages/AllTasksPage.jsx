@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import TaskCard from '../components/TaskCard';
-import Modal from '../components/Modal';
-import TaskForm from '../components/TaskForm';
-import { taskService } from '../services/taskService';
+import { useAuth } from '../contexts/AuthContext.jsx';
+import TaskCard from '../components/TaskCard.jsx';
+import Modal from '../components/Modal.jsx';
+import TaskForm from '../components/TaskForm.jsx';
+import { taskService } from '../services/taskService.js';
 
 const AllTasksPage = () => {
   const { user, openLoginModal } = useAuth();

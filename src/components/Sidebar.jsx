@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import Modal from './Modal';
-import TaskForm from './TaskForm';
-import { taskService } from '../services/taskService';
+import { useAuth } from '../contexts/AuthContext.jsx';
+import Modal from './Modal.jsx';
+import TaskForm from './TaskForm.jsx';
+import { taskService } from '../services/taskService.js';
 
 const Sidebar = () => {
   const { user, logout, openLoginModal } = useAuth();

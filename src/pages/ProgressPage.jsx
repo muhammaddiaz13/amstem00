@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import ProgressBar from '../components/ProgressBar';
+import { useAuth } from '../contexts/AuthContext.jsx';
+import ProgressBar from '../components/ProgressBar.jsx';
+import { taskService } from '../services/taskService.js';
 
 function ProgressPage() {
   const { user } = useAuth();
@@ -18,14 +19,13 @@ function ProgressPage() {
     others: 0
   });
 
-  // Load tasks dari localStorage
   useEffect(() => {
-    const savedTasks = localStorage.getItem('tasks');
-    if (savedTasks) {
-      const parsedTasks = JSON.parse(savedTasks);
-      setTasks(parsedTasks);
+    if (user) {
+      taskService.getAll().then(data => setTasks(data)).catch(err => console.error(err));
+    } else {
+      setTasks([]);
     }
-  }, []);
+  }, [user]);
 
   // Calculate progress statistics
   useEffect(() => {
@@ -43,13 +43,11 @@ function ProgressPage() {
       return;
     }
 
-    // Sesuaikan dengan field yang ada di TaskCard Anda
     const completedTasks = tasks.filter(task => task.taskStatus === 'Finished').length;
     const inProgressTasks = tasks.filter(task => task.taskStatus === 'In Progress').length;
     const pendingTasks = tasks.filter(task => task.taskStatus === 'Unfinished' || !task.taskStatus).length;
     const totalTasks = tasks.length;
     
-    // Kategorikan tasks (sesuaikan dengan data Anda)
     const workTasks = tasks.filter(task => task.taskCategory === 'Work' || task.priority === 'High').length;
     const personalTasks = tasks.filter(task => task.taskCategory === 'Personal' || task.priority === 'Medium').length;
     const othersTasks = tasks.filter(task => task.taskCategory === 'Others' || task.priority === 'Low').length;
@@ -68,7 +66,6 @@ function ProgressPage() {
     });
   }, [tasks]);
 
-  // Get completed tasks
   const completedTasks = tasks.filter(task => task.taskStatus === 'Finished');
 
   return (
@@ -113,7 +110,6 @@ function ProgressPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Total Tasks Card */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
           <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-500 text-2xl mb-4">
             <span className="text-2xl">📊</span>
@@ -122,7 +118,6 @@ function ProgressPage() {
           <div className="text-3xl font-bold text-gray-800">{progressStats.total}</div>
         </div>
         
-        {/* Completed Tasks Card */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
           <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center text-green-500 text-2xl mb-4">
             <span className="text-2xl">✅</span>
@@ -131,7 +126,6 @@ function ProgressPage() {
           <div className="text-3xl font-bold text-gray-800">{progressStats.completed}</div>
         </div>
         
-        {/* In Progress Tasks Card */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
           <div className="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center text-yellow-500 text-2xl mb-4">
             <span className="text-2xl">⏳</span>
@@ -140,7 +134,6 @@ function ProgressPage() {
           <div className="text-3xl font-bold text-gray-800">{progressStats.inProgress}</div>
         </div>
         
-        {/* Pending Tasks Card */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
           <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center text-red-500 text-2xl mb-4">
             <span className="text-2xl">📋</span>
@@ -155,7 +148,6 @@ function ProgressPage() {
         <h2 className="text-xl font-semibold text-gray-800 mb-6">Progress by Category</h2>
         
         <div className="space-y-6">
-          {/* Work Category */}
           <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
             <div className="flex justify-between items-center mb-3">
               <div className="flex items-center gap-3">
@@ -178,7 +170,6 @@ function ProgressPage() {
             />
           </div>
           
-          {/* Personal Category */}
           <div className="p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
             <div className="flex justify-between items-center mb-3">
               <div className="flex items-center gap-3">
@@ -201,7 +192,6 @@ function ProgressPage() {
             />
           </div>
           
-          {/* Others Category */}
           <div className="p-4 bg-purple-50 rounded-lg border-l-4 border-purple-500">
             <div className="flex justify-between items-center mb-3">
               <div className="flex items-center gap-3">

@@ -1,23 +1,20 @@
 import React from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
-import LoginRequiredModal from './components/LoginRequiredModal';
-import { AuthProvider } from './contexts/AuthContext';
-import { Toaster } from 'react-hot-toast';
+import Sidebar from './components/Sidebar.jsx';
+import LoginRequiredModal from './components/LoginRequiredModal.jsx';
+import { AuthProvider } from './contexts/AuthContext.jsx';
 
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
-import AllTasksPage from './pages/AllTasksPage';
-import CalendarPage from './pages/CalendarPage';
-import ProgressPage from './pages/ProgressPage';
-import TeamPage from './pages/TeamPage';
-import CategoryPage from './pages/CategoryPage'; // Import komponen baru
+import LoginPage from './pages/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
+import DashboardPage from './pages/DashboardPage.jsx';
+import AllTasksPage from './pages/AllTasksPage.jsx';
+import CalendarPage from './pages/CalendarPage.jsx';
+import ProgressPage from './pages/ProgressPage.jsx';
+import TeamPage from './pages/TeamPage.jsx';
+import CategoryPage from './pages/CategoryPage.jsx';
 
 const AppLayout = () => {
   return (
-    <>
-    <Toaster position="top-center" />
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 overflow-auto ml-64 relative">
@@ -25,7 +22,6 @@ const AppLayout = () => {
         <LoginRequiredModal />
       </div>
     </div>
-    </>
   );
 };
 

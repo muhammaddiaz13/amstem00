@@ -1,28 +1,50 @@
-import axios from 'axios';
+import api from './api.js';
 
-// Kita gunakan domain yang ada tulisan "Port 3000" dari screenshot kamu
-// Jangan lupa tambahkan /api di belakangnya
-const API_URL = 'https://amstem00-production-6448.up.railway.app/api'; 
+export const authService = {
+  login: async (email, password) => {
+    try {
+      const response = await api.post('/auth/login', { email, password });
+      
+      const userData = {
+        ...response.data.user,
+        token: response.data.token
+      };
 
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Interceptor untuk menyisipkan Token JWT ke setiap request otomatis
-api.interceptors.request.use(
-  (config) => {
-    const user = JSON.parse(localStorage.getItem('amstem_user'));
-    if (user && user.token) {
-      config.headers['Authorization'] = `Bearer ${user.token}`;
+      if (userData.token) {
+        localStorage.setItem('amstem_user', JSON.stringify(userData));
+      }
+      return userData;
+    } catch (error) {
+      console.error("Login error:", error.response?.data?.message || error.message);
+      throw error;
     }
-    return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
 
-export default api;
+  register: async (username, email, password) => {
+    try {
+      const response = await api.post('/auth/register', { username, email, password });
+      
+      const userData = {
+        ...response.data.user,
+        token: response.data.token
+      };
+
+      if (userData.token) {
+        localStorage.setItem('amstem_user', JSON.stringify(userData));
+      }
+      return userData;
+    } catch (error) {
+      console.error("Register error:", error.response?.data?.message || error.message);
+      throw error;
+    }
+  },
+
+  logout: () => {
+    localStorage.removeItem('amstem_user');
+  },
+
+  getCurrentUser: () => {
+    const stored = localStorage.getItem('amstem_user');
+    return stored ? JSON.parse(stored) : null;
+  }
+};
