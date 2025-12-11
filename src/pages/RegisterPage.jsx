@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { authService } from '../services/authService';
+import { useAuth } from '../contexts/AuthContext.jsx';
+import { authService } from '../services/authService.js';
 
 const RegisterPage = () => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -24,11 +25,33 @@ const RegisterPage = () => {
     setError('');
 
     try {
-      const user = await authService.register(email, password);
+      console.log("Sending register data...", { username, email, password });
+      const user = await authService.register(username, email, password);
+      console.log("Register success:", user);
       login(user);
       navigate('/dashboard');
     } catch (err) {
-      setError('Registration failed.');
+      console.error("Register Error Full Object:", err);
+      
+      // Coba ambil pesan error dari berbagai kemungkinan format response backend
+      let message = 'Registration failed.';
+      
+      if (err.response) {
+        // Error dari server (4xx, 5xx)
+        if (err.response.data) {
+          message = err.response.data.message || err.response.data.error || JSON.stringify(err.response.data);
+        } else {
+          message = `Server error: ${err.response.status}`;
+        }
+      } else if (err.request) {
+        // Request terkirim tapi tidak ada respon (Network Error / CORS / Backend Down)
+        message = 'Cannot connect to server. Check your internet or CORS configuration.';
+      } else {
+        // Error setting up request
+        message = err.message;
+      }
+
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -44,8 +67,24 @@ const RegisterPage = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg text-center">{error}</div>}
+          {error && (
+            <div className="p-3 bg-red-50 text-red-600 text-xs rounded-lg text-center break-words border border-red-100">
+              {error}
+            </div>
+          )}
           
+          <div>
+            <label className="block text-gray-700 text-sm font-semibold mb-2">Username</label>
+            <input
+              type="text"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 transition-all"
+              placeholder="johndoe"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+
           <div>
             <label className="block text-gray-700 text-sm font-semibold mb-2">Email Address</label>
             <input
@@ -85,9 +124,15 @@ const RegisterPage = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition-all duration-300 font-bold shadow-lg shadow-blue-200 disabled:opacity-70 disabled:cursor-not-allowed mt-4"
+            className="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition-all duration-300 font-bold shadow-lg shadow-blue-200 disabled:opacity-70 disabled:cursor-not-allowed mt-4 flex items-center justify-center gap-2"
           >
-            {isLoading ? 'Creating Account...' : 'Sign Up'}
+            {isLoading ? (
+              <>
+                <i className="fas fa-spinner fa-spin"></i> Processing...
+              </>
+            ) : (
+              'Sign Up'
+            )}
           </button>
         </form>
 
