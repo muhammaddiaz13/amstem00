@@ -1,24 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import Calendar from '../components/Calendar'; // Import komponen baru
+import Calendar from '../components/Calendar'; 
 import Modal from '../components/Modal';
 import TaskForm from '../components/TaskForm';
+import { taskService } from '../services/taskService.js';
 
 const CalendarPage = () => {
   const { user, openLoginModal } = useAuth();
   
-  const [tasks, setTasks] = useState(() => {
-    const savedTasks = localStorage.getItem('tasks');
-    return savedTasks ? JSON.parse(savedTasks) : [];
-  });
-
+  // Initialize tasks as an empty array
+  const [tasks, setTasks] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
+  // Helper konsisten untuk format tanggal YYYY-MM-DD
+  const formatDateForApi = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // FETCH TASKS FROM API
   useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }, [tasks]);
+    if (user) {
+      fetchTasks();
+    } else {
+      setTasks([]);
+    }
+  }, [user]);
+
+  const fetchTasks = async () => {
+    setIsLoading(true);
+    try {
+      const data = await taskService.getAll();
+      setTasks(data);
+    } catch (error) {
+      console.error("Failed to fetch tasks for calendar", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Navigation Logic
   const handlePrevMonth = () => {
@@ -33,41 +57,67 @@ const CalendarPage = () => {
     setSelectedDate(date);
   };
 
-  // CRUD & Interaction Logic
-  const handleAddTask = (newTask) => {
-    const taskWithId = {
-      ...newTask,
-      id: Date.now(),
-      taskStatus: 'Unfinished',
-      progress: 0
-    };
-    setTasks([...tasks, taskWithId]);
-    setIsModalOpen(false);
-  };
-
-  const handleDeleteTask = (taskId) => {
-    if(window.confirm("Are you sure you want to delete this task?")){
-       setTasks(tasks.filter(t => t.id !== taskId));
+  // CRUD & Interaction Logic via API
+  const handleAddTask = async (newTask) => {
+    try {
+      // Create via API
+      const createdTask = await taskService.create({
+        ...newTask,
+        taskStatus: 'Unfinished',
+        progress: 0
+      });
+      // Update local state
+      setTasks([...tasks, createdTask]);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Failed to create task", error);
+      alert("Failed to save task. Please try again.");
     }
   };
 
-  // Logic baru dari team: Toggle Status via Checkbox
-  const toggleTaskStatus = (taskId, isChecked) => {
+  const handleDeleteTask = async (taskId) => {
+    if(window.confirm("Are you sure you want to delete this task?")){
+       try {
+         await taskService.delete(taskId);
+         setTasks(tasks.filter(t => t.id !== taskId));
+       } catch (error) {
+         console.error("Failed to delete task", error);
+         alert("Failed to delete task.");
+       }
+    }
+  };
+
+  // Logic baru dari team: Toggle Status via Checkbox (Updated with API)
+  const toggleTaskStatus = async (taskId, isChecked) => {
+      const taskToUpdate = tasks.find(t => t.id === taskId);
+      if(!taskToUpdate) return;
+
+      const updatedFields = {
+          ...taskToUpdate,
+          taskStatus: isChecked ? 'Finished' : 'Unfinished',
+          progress: isChecked ? 100 : 0
+      };
+
+      // Optimistic update
       setTasks(tasks.map(t => {
           if (t.id === taskId) {
-              return { 
-                  ...t, 
-                  taskStatus: isChecked ? 'Finished' : 'Unfinished',
-                  progress: isChecked ? 100 : 0
-              };
+              return updatedFields;
           }
           return t;
       }));
+
+      try {
+          await taskService.update(taskId, updatedFields);
+      } catch (error) {
+          console.error("Failed to update status", error);
+          // Revert if failed
+          fetchTasks();
+      }
   };
 
   // Filtering
   const getTasksForDate = (date) => {
-    const dateString = date.toISOString().split('T')[0];
+    const dateString = formatDateForApi(date);
     return tasks.filter(task => task.dueDate === dateString);
   };
 
@@ -98,8 +148,9 @@ const CalendarPage = () => {
         <h1 className="text-3xl font-bold text-gray-900">Task Calendar</h1>
         <button 
           onClick={() => {
-            setSelectedDate(new Date());
-            setCurrentDate(new Date());
+            const today = new Date();
+            setSelectedDate(today);
+            setCurrentDate(today);
           }}
           className="text-sm text-blue-600 font-medium hover:underline"
         >
@@ -108,17 +159,23 @@ const CalendarPage = () => {
       </div>
 
       {/* Menggunakan Komponen Calendar yang baru dipisah */}
-      <Calendar 
-        currentDate={currentDate}
-        selectedDate={selectedDate}
-        tasks={tasks}
-        onDateClick={handleDateClick}
-        onPrevMonth={handlePrevMonth}
-        onNextMonth={handleNextMonth}
-      />
+      {isLoading ? (
+        <div className="flex justify-center py-10">
+           <i className="fas fa-circle-notch fa-spin text-3xl text-blue-500"></i>
+        </div>
+      ) : (
+        <Calendar 
+            currentDate={currentDate}
+            selectedDate={selectedDate}
+            tasks={tasks}
+            onDateClick={handleDateClick}
+            onPrevMonth={handlePrevMonth}
+            onNextMonth={handleNextMonth}
+        />
+      )}
 
       {/* Task List Section - Updated Style from Team */}
-      <div className="mt-8">
+      <div className="mt-8 animate-[fadeIn_0.3s_ease-out]">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl font-bold text-gray-800">
                 Tasks for {selectedDate.toDateString()}
@@ -215,7 +272,10 @@ const CalendarPage = () => {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="New Assignment">
         <TaskForm 
             onSubmit={handleAddTask} 
-            initialData={{ dueDate: selectedDate.toISOString().split('T')[0] }} 
+            // Format date YYYY-MM-DD for the form initial value using the consistent helper
+            initialData={{ 
+                dueDate: formatDateForApi(selectedDate)
+            }} 
         />
       </Modal>
     </div>

@@ -9,8 +9,6 @@ const taskRoutes = require('./routes/taskRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-// UPDATE: Konfigurasi CORS agar Vercel bisa mengakses Railway
 app.use(cors({
   origin: [
     'http://localhost:5173',                         // Localhost Frontend
