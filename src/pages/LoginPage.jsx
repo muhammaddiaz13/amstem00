@@ -22,7 +22,9 @@ const LoginPage = () => {
       login(user);
       navigate('/dashboard');
     } catch (err) {
-      setError('Login failed. Please check your credentials.');
+      // Ambil pesan error spesifik dari backend jika ada
+      const message = err.response?.data?.message || 'Login failed. Please check your credentials.';
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -30,7 +32,7 @@ const LoginPage = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
-      <div className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-sm border border-gray-100">
+      <div className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-sm border border-gray-100 animate-[fadeIn_0.5s_ease-out]">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-blue-600 mb-1">AMStem</h1>
           <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
@@ -38,7 +40,11 @@ const LoginPage = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {error && <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg text-center">{error}</div>}
+          {error && (
+            <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg text-center border border-red-100 flex items-center justify-center gap-2">
+              <i className="fas fa-exclamation-circle"></i> {error}
+            </div>
+          )}
           
           <div>
             <label className="block text-gray-700 text-sm font-semibold mb-2">Email Address</label>
@@ -67,9 +73,15 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition-all duration-300 font-bold shadow-lg shadow-blue-200 disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition-all duration-300 font-bold shadow-lg shadow-blue-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            {isLoading ? (
+              <>
+                <i className="fas fa-spinner fa-spin"></i> Signing in...
+              </>
+            ) : (
+              'Sign In'
+            )}
           </button>
         </form>
 

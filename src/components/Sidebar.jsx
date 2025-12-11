@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Modal from './Modal';
 import TaskForm from './TaskForm';
-import { ConfirmToast } from "./ConfirmToast";
+import { taskService } from '../services/taskService';
 
 const Sidebar = () => {
   const { user, logout, openLoginModal } = useAuth();
@@ -25,21 +25,27 @@ const Sidebar = () => {
     }
   };
 
-  const handleTaskSubmit = (task) => {
-    const existing = JSON.parse(localStorage.getItem('tasks') || '[]');
-    const newTask = { ...task, id: Date.now(), taskStatus: 'Unfinished', progress: 0 };
-    localStorage.setItem('tasks', JSON.stringify([...existing, newTask]));
-    
-    // Force a reload to refresh tasks
-    window.location.reload(); 
-    setIsTaskModalOpen(false);
+  const handleTaskSubmit = async (task) => {
+    try {
+      await taskService.create({
+        ...task,
+        taskStatus: 'Unfinished',
+        progress: 0
+      });
+      // Kita reload halaman agar data terbaru muncul di dashboard
+      window.location.reload(); 
+      setIsTaskModalOpen(false);
+    } catch (error) {
+      console.error("Failed to create task via sidebar", error);
+      alert("Failed to create task. Please try again.");
+    }
   };
 
   const handleAuthAction = () => {
     if (user) {
-        ConfirmToast(
-        "Are you sure you want to logout?",
-        () => logout());
+      if(window.confirm("Are you sure you want to logout?")) {
+        logout();
+      }
     } else {
       navigate('/login');
     }
@@ -51,7 +57,7 @@ const Sidebar = () => {
         {/* Header */}
         <div className="p-6 border-b border-gray-100 flex-shrink-0">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">A</div>
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-md shadow-blue-200">A</div>
             <h1 className="text-2xl font-bold text-gray-800 tracking-tight">AMStem</h1>
           </div>
           <p className="text-xs text-gray-400 mt-1 font-medium">Assignment Management System</p>
@@ -111,7 +117,7 @@ const Sidebar = () => {
         {/* Footer Actions */}
         <div className="p-4 border-t border-gray-100 flex-shrink-0 space-y-3">
            <button
-            className="new-assignments w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg transition-all duration-300 font-semibold flex items-center justify-center shadow-lg shadow-blue-200 hover:shadow-blue-300"
+            className="new-assignments w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg transition-all duration-300 font-semibold flex items-center justify-center shadow-lg shadow-blue-200 hover:shadow-blue-300 transform hover:-translate-y-0.5"
             onClick={handleNewAssignmentClick}
           >
             <span className="mr-2 text-lg font-bold">+</span> New Assignment

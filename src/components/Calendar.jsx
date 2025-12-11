@@ -20,9 +20,17 @@ const Calendar = ({
   const daysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   const firstDayOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
 
+  // Helper untuk format tanggal lokal YYYY-MM-DD
+  const toLocalDateString = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const getTasksForDay = (day) => {
     const checkDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-    const dateString = checkDate.toISOString().split('T')[0];
+    const dateString = toLocalDateString(checkDate);
     return tasks.filter(task => task.dueDate === dateString);
   };
 
@@ -39,8 +47,11 @@ const Calendar = ({
     // Days of current month
     for (let day = 1; day <= totalDays; day++) {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-      const isToday = new Date().toDateString() === date.toDateString();
-      const isSelected = selectedDate.toDateString() === date.toDateString();
+      
+      // Bandingkan menggunakan string lokal untuk akurasi
+      const isToday = toLocalDateString(new Date()) === toLocalDateString(date);
+      const isSelected = toLocalDateString(selectedDate) === toLocalDateString(date);
+      
       const dayTasks = getTasksForDay(day);
 
       // Check priorities for dots
@@ -48,20 +59,15 @@ const Calendar = ({
       const hasMediumPriority = dayTasks.some(task => task.priority === 'Medium');
       const hasLowPriority = dayTasks.some(task => task.priority === 'Low');
 
-      // Changed from aspect-square to h-24 for compact height
       let dayClasses = "h-24 border rounded-lg p-2 relative cursor-pointer transition-all duration-200 flex flex-col items-center justify-start ";
       
       if (isSelected) {
-         // Selected: Biru Solid
          dayClasses += "bg-blue-600 text-white border-blue-600 shadow-md z-10";
       } else if (isToday) {
-         // Today: Text Biru
          dayClasses += "bg-white text-blue-600 border-blue-200 font-bold hover:bg-blue-50";
       } else if (dayTasks.length > 0) {
-         // Has Tasks
          dayClasses += "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100";
       } else {
-         // Empty
          dayClasses += "bg-white text-gray-700 border-gray-100 hover:bg-gray-50";
       }
 
@@ -88,7 +94,7 @@ const Calendar = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8 max-w-4xl mx-auto">
+    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8 max-w-4xl mx-auto animate-[fadeIn_0.5s_ease-out]">
       {/* Header Navigation */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">
