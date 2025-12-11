@@ -3,23 +3,35 @@ import { useAuth } from '../contexts/AuthContext';
 import TaskCard from '../components/TaskCard';
 import Modal from '../components/Modal';
 import TaskForm from '../components/TaskForm';
+import { taskService } from '../services/taskService';
 
 const DashboardPage = () => {
   const { user, openLoginModal } = useAuth();
   
-  // FIX: Initialize state directly from localStorage to prevent overwriting with []
-  const [tasks, setTasks] = useState(() => {
-    const savedTasks = localStorage.getItem('tasks');
-    return savedTasks ? JSON.parse(savedTasks) : [];
-  });
-  
+  const [tasks, setTasks] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Remove the useEffect that reads data, as we do it in useState now
-
+  // Fetch tasks dari API saat komponen dimuat atau user berubah
   useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }, [tasks]);
+    if (user) {
+      fetchTasks();
+    } else {
+      setTasks([]);
+    }
+  }, [user]);
+
+  const fetchTasks = async () => {
+    setIsLoading(true);
+    try {
+      const data = await taskService.getAll();
+      setTasks(data);
+    } catch (error) {
+      console.error("Failed to fetch tasks", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleAddTaskClick = () => {
     if (!user) {
@@ -29,23 +41,37 @@ const DashboardPage = () => {
     }
   };
 
-  const handleAddTask = (newTask) => {
-    const taskWithId = {
-      ...newTask,
-      id: Date.now(),
-      taskStatus: 'Unfinished', 
-      progress: 0
-    };
-    setTasks([...tasks, taskWithId]);
-    setIsModalOpen(false);
+  const handleAddTask = async (newTask) => {
+    try {
+      const createdTask = await taskService.create({
+        ...newTask,
+        taskStatus: 'Unfinished',
+        progress: 0
+      });
+      setTasks([...tasks, createdTask]);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Failed to create task", error);
+      alert("Failed to create task. Please try again.");
+    }
   };
 
-  const handleUpdateTask = (updatedTask) => {
-    setTasks(tasks.map(t => t.id === updatedTask.id ? updatedTask : t));
+  const handleUpdateTask = async (updatedTask) => {
+    try {
+      const result = await taskService.update(updatedTask.id, updatedTask);
+      setTasks(tasks.map(t => t.id === updatedTask.id ? result : t));
+    } catch (error) {
+      console.error("Failed to update task", error);
+    }
   };
 
-  const handleDeleteTask = (taskId) => {
-    setTasks(tasks.filter(t => t.id !== taskId));
+  const handleDeleteTask = async (taskId) => {
+    try {
+      await taskService.delete(taskId);
+      setTasks(tasks.filter(t => t.id !== taskId));
+    } catch (error) {
+      console.error("Failed to delete task", error);
+    }
   };
 
   const hour = new Date().getHours();
@@ -63,14 +89,19 @@ const DashboardPage = () => {
         
         <button
           onClick={handleAddTaskClick}
-          className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center font-semibold"
+          className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center font-semibold transform hover:-translate-y-0.5"
         >
           <span className="mr-2 text-xl leading-none">+</span> New Assignment
         </button>
       </div>
 
-      {tasks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-80 bg-white rounded-2xl shadow-sm border border-gray-100 mt-8 text-center p-6">
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+          <i className="fas fa-circle-notch fa-spin text-3xl mb-3 text-blue-500"></i>
+          <p>Loading assignments...</p>
+        </div>
+      ) : tasks.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-80 bg-white rounded-2xl shadow-sm border border-gray-100 mt-8 text-center p-6 animate-[fadeIn_0.5s_ease-out]">
           <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4 text-3xl">
             📝
           </div>
@@ -83,8 +114,7 @@ const DashboardPage = () => {
           </button>
         </div>
       ) : (
-        <>
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-[fadeIn_0.3s_ease-out]">
             {tasks.map(task => (
               <TaskCard 
                 key={task.id} 
@@ -93,8 +123,7 @@ const DashboardPage = () => {
                 onDelete={handleDeleteTask} 
               />
             ))}
-          </div>
-        </>
+        </div>
       )}
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="New Assignment">
