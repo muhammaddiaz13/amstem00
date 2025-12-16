@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 const TeamPage = () => {
-  const { user } = useAuth();
+  const { user, openLoginModal } = useAuth();
   const username = user ? user.username : 'Guest';
 
   const [taskAssignments, setTaskAssignments] = useState([]);
@@ -339,6 +339,10 @@ const TeamPage = () => {
           <button 
             className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium transition-colors duration-200 shadow-sm hover:shadow"
             onClick={() => {
+              if (!user) {
+                openLoginModal();
+                return;
+              }
               setEditingAssignment(null);
               setShowModal(true);
             }}
@@ -470,7 +474,13 @@ const TeamPage = () => {
             </p>
             <button 
               className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium transition-colors duration-200 shadow-sm hover:shadow"
-              onClick={() => setShowModal(true)}
+              onClick={() => {
+                if (!user) {
+                  openLoginModal();
+                  return;
+                }
+                setShowModal(true);
+              }}
             >
               <i className="fas fa-plus"></i>
               <span>Create First Assignment</span>
@@ -533,6 +543,10 @@ const TeamPage = () => {
                         <button 
                           className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors duration-200"
                           onClick={() => {
+                            if (!user) {
+                              openLoginModal();
+                              return;
+                            }
                             if (assignments.length > 0) {
                               setEditingAssignment(assignments[0]);
                               setShowModal(true);
@@ -547,7 +561,13 @@ const TeamPage = () => {
                         {/* Tombol Delete dengan emot 🗑️ */}
                         <button 
                           className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors duration-200"
-                          onClick={() => handleDeleteAssigneeAssignments(assignee)}
+                          onClick={() => {
+                            if (!user) {
+                              openLoginModal();
+                              return;
+                            }
+                            handleDeleteAssigneeAssignments(assignee);
+                          }}
                           title="Delete All Assignments"
                           disabled={assignments.length === 0}
                         >
@@ -589,6 +609,10 @@ const TeamPage = () => {
                                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                   <button
                                     onClick={() => {
+                                      if (!user) {
+                                        openLoginModal();
+                                        return;
+                                      }
                                       setEditingAssignment(assignment);
                                       setShowModal(true);
                                     }}
@@ -598,7 +622,13 @@ const TeamPage = () => {
                                     ✏️
                                   </button>
                                   <button
-                                    onClick={() => handleDeleteAssignment(assignment.id)}
+                                    onClick={() => {
+                                      if (!user) {
+                                        openLoginModal();
+                                        return;
+                                      }
+                                      handleDeleteAssignment(assignment.id);
+                                    }}
                                     className="p-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-colors duration-200"
                                     title="Delete Task"
                                   >
