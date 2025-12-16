@@ -92,20 +92,23 @@ const CategoryPage = ({ category }) => {
   const getTheme = () => {
     switch(category) {
       case 'Work': return { 
-        bg: 'bg-slate-50 dark:bg-slate-900', 
-        accent: 'text-slate-700 dark:text-slate-200', 
-        btn: 'bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-500', 
+        // Dark Black for Work (Previous Request)
+        bg: 'bg-gray-50 dark:bg-black', 
+        accent: 'text-gray-800 dark:text-gray-200', 
+        btn: 'bg-gray-900 hover:bg-black dark:bg-gray-800 dark:hover:bg-gray-700', 
         icon: '💼',
         desc: 'Professional commitments and projects'
       };
       case 'Others': return { 
-        bg: 'bg-orange-50 dark:bg-orange-950', 
-        accent: 'text-orange-700 dark:text-orange-200', 
-        btn: 'bg-orange-600 hover:bg-orange-700 dark:bg-orange-700 dark:hover:bg-orange-600', 
+        // Indigo/Deep Purple for Others (Harmonizes with Blue)
+        bg: 'bg-indigo-50 dark:bg-indigo-950', 
+        accent: 'text-indigo-700 dark:text-indigo-200', 
+        btn: 'bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-500', 
         icon: '📦',
         desc: 'Miscellaneous tasks and shopping lists'
       };
       default: return { 
+        // Standard Blue for Personal/Default
         bg: 'bg-blue-50 dark:bg-gray-900', 
         accent: 'text-blue-700 dark:text-blue-200', 
         btn: 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500', 
