@@ -63,7 +63,11 @@ const App = () => {
         </div>
       )}
 
-      <div className="flex pt-16 h-screen overflow-hidden">
+      {/* 
+         Main layout container
+         Fixed: Removed pt-16 when on Auth Pages to prevent content from being pushed down.
+      */}
+      <div className={`flex h-screen overflow-hidden ${!isAuthPage ? 'pt-16' : ''}`}>
         {/* Sidebar */}
         {!isAuthPage && (
           <Sidebar 
