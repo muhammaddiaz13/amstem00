@@ -12,29 +12,20 @@ const TeamPage = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
 
-  
-  const initialTaskAssignments = [
-    {
-      id: '1',
-      taskName: 'UI Dashboard Design',
-      status: 'inprogress',
-      assignee: 'John Doe',
-      priority: 'high',
-      tag: 'work',
-      dueDate: '2023-12-20',
-      notes: 'Create admin dashboard interface with modern components',
-      createdAt: new Date().toISOString()
-    }
-  ];
+  // Hapus data dummy, inisialisasi dengan array kosong
+  const initialTaskAssignments = [];
 
- 
   useEffect(() => {
-    let savedAssignments = JSON.parse(localStorage.getItem('taskAssignments'));
-    if (!savedAssignments || savedAssignments.length === 0) {
-      savedAssignments = initialTaskAssignments;
-      localStorage.setItem('taskAssignments', JSON.stringify(savedAssignments));
+    const savedAssignments = JSON.parse(localStorage.getItem('taskAssignments'));
+    
+    // Jika ada data tersimpan (walaupun array kosong), gunakan itu.
+    // Jika null (belum pernah buka halaman ini), gunakan array kosong.
+    if (savedAssignments) {
+      setTaskAssignments(savedAssignments);
+    } else {
+      setTaskAssignments([]);
+      localStorage.setItem('taskAssignments', JSON.stringify([]));
     }
-    setTaskAssignments(savedAssignments);
   }, []);
 
   const filteredAssignments = taskAssignments.filter(assignment => {
