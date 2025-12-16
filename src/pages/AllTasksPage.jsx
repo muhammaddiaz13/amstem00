@@ -4,7 +4,7 @@ import TaskCard from '../components/TaskCard.jsx';
 import Modal from '../components/Modal.jsx';
 import TaskForm from '../components/TaskForm.jsx';
 import { taskService } from '../services/taskService.js';
-import { Toaster } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 
 const AllTasksPage = () => {
   const { user, openLoginModal } = useAuth();
@@ -33,6 +33,7 @@ const AllTasksPage = () => {
       setTasks(data);
     } catch (error) {
       console.error("Failed to fetch tasks", error);
+      toast.error("Failed to load tasks");
     } finally {
       setIsLoading(false);
     }
@@ -44,6 +45,7 @@ const AllTasksPage = () => {
   };
 
   const handleAddTask = async (newTask) => {
+    const toastId = toast.loading("Adding task...");
     try {
       const createdTask = await taskService.create({
         ...newTask,
@@ -52,8 +54,10 @@ const AllTasksPage = () => {
       });
       setTasks([...tasks, createdTask]);
       setIsModalOpen(false);
+      toast.success("Task added successfully!", { id: toastId });
     } catch (error) {
       console.error("Failed to create task", error);
+      toast.error("Failed to add task", { id: toastId });
     }
   };
 
@@ -61,17 +65,22 @@ const AllTasksPage = () => {
     try {
       const result = await taskService.update(updatedTask.id, updatedTask);
       setTasks(tasks.map(t => t.id === updatedTask.id ? result : t));
+      toast.success("Task updated!");
     } catch (error) {
       console.error("Failed to update task", error);
+      toast.error("Failed to update task");
     }
   };
 
   const handleDeleteTask = async (taskId) => {
+    const toastId = toast.loading("Deleting task...");
     try {
       await taskService.delete(taskId);
       setTasks(tasks.filter(t => t.id !== taskId));
+      toast.success("Task deleted!", { id: toastId });
     } catch (error) {
       console.error("Failed to delete task", error);
+      toast.error("Failed to delete task", { id: toastId });
     }
   };
 

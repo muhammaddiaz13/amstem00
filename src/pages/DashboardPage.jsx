@@ -4,7 +4,7 @@ import TaskCard from '../components/TaskCard.jsx';
 import Modal from '../components/Modal.jsx';
 import TaskForm from '../components/TaskForm.jsx';
 import { taskService } from '../services/taskService.js';
-import { Toaster } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 
 const DashboardPage = () => {
   const { user, openLoginModal } = useAuth();
@@ -29,6 +29,7 @@ const DashboardPage = () => {
       setTasks(data);
     } catch (error) {
       console.error("Failed to fetch tasks", error);
+      toast.error("Failed to load tasks");
     } finally {
       setIsLoading(false);
     }
@@ -43,6 +44,7 @@ const DashboardPage = () => {
   };
 
   const handleAddTask = async (newTask) => {
+    const toastId = toast.loading("Creating assignment...");
     try {
       const createdTask = await taskService.create({
         ...newTask,
@@ -51,9 +53,10 @@ const DashboardPage = () => {
       });
       setTasks([...tasks, createdTask]);
       setIsModalOpen(false);
+      toast.success("Assignment created successfully!", { id: toastId });
     } catch (error) {
       console.error("Failed to create task", error);
-      alert("Failed to create task. Please try again.");
+      toast.error("Failed to create assignment.", { id: toastId });
     }
   };
 
@@ -61,17 +64,22 @@ const DashboardPage = () => {
     try {
       const result = await taskService.update(updatedTask.id, updatedTask);
       setTasks(tasks.map(t => t.id === updatedTask.id ? result : t));
+      toast.success("Assignment updated!");
     } catch (error) {
       console.error("Failed to update task", error);
+      toast.error("Failed to update assignment.");
     }
   };
 
   const handleDeleteTask = async (taskId) => {
+    const toastId = toast.loading("Deleting...");
     try {
       await taskService.delete(taskId);
       setTasks(tasks.filter(t => t.id !== taskId));
+      toast.success("Assignment deleted successfully", { id: toastId });
     } catch (error) {
       console.error("Failed to delete task", error);
+      toast.error("Failed to delete assignment", { id: toastId });
     }
   };
 
@@ -80,7 +88,6 @@ const DashboardPage = () => {
 
   return (
     <div className="p-8 md:p-12 bg-gray-50/50 min-h-full fade-in">
-      {/* Tambahkan Toaster di sini agar notifikasi muncul */}
       <Toaster position="top-center" reverseOrder={false} />
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
