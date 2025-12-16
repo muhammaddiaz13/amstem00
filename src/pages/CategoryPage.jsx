@@ -4,7 +4,7 @@ import TaskCard from '../components/TaskCard.jsx';
 import Modal from '../components/Modal.jsx';
 import TaskForm from '../components/TaskForm.jsx';
 import { taskService } from '../services/taskService.js';
-import { Toaster } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 
 const CategoryPage = ({ category }) => {
   const { user, openLoginModal } = useAuth();
@@ -18,7 +18,7 @@ const CategoryPage = ({ category }) => {
   useEffect(() => {
     if (user) fetchTasks();
     else setTasks([]);
-  }, [user, category]); // Re-fetch if user or category changes
+  }, [user, category]); 
 
   const fetchTasks = async () => {
     setIsLoading(true);
@@ -27,6 +27,7 @@ const CategoryPage = ({ category }) => {
       setTasks(data);
     } catch (error) {
       console.error("Failed to fetch tasks", error);
+      toast.error("Failed to load tasks");
     } finally {
       setIsLoading(false);
     }
@@ -38,6 +39,7 @@ const CategoryPage = ({ category }) => {
   };
 
   const handleAddTask = async (newTask) => {
+    const toastId = toast.loading("Creating task...");
     try {
       const createdTask = await taskService.create({
         ...newTask,
@@ -47,8 +49,10 @@ const CategoryPage = ({ category }) => {
       });
       setTasks([...tasks, createdTask]);
       setIsModalOpen(false);
+      toast.success("Task created successfully!", { id: toastId });
     } catch (error) {
       console.error("Failed to create task", error);
+      toast.error("Failed to create task", { id: toastId });
     }
   };
 
@@ -56,17 +60,22 @@ const CategoryPage = ({ category }) => {
     try {
       const result = await taskService.update(updatedTask.id, updatedTask);
       setTasks(tasks.map(t => t.id === updatedTask.id ? result : t));
+      toast.success("Task updated!");
     } catch (error) {
       console.error("Failed to update task", error);
+      toast.error("Failed to update task");
     }
   };
 
   const handleDeleteTask = async (taskId) => {
+    const toastId = toast.loading("Deleting...");
     try {
       await taskService.delete(taskId);
       setTasks(tasks.filter(t => t.id !== taskId));
+      toast.success("Task deleted!", { id: toastId });
     } catch (error) {
       console.error("Failed to delete task", error);
+      toast.error("Failed to delete task", { id: toastId });
     }
   };
 
