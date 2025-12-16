@@ -48,7 +48,7 @@ const LoginPage = () => {
   };
 
   const handleGoogleLogin = () => {
-    toast("Sorry, Google Sign-In is coming soon!", {
+    toast("Sorry :(, Google Sign-In is coming soon!", {
         icon: '🚧',
         style: {
             borderRadius: '10px',
