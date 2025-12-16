@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { Toaster } from 'react-hot-toast';
 
 const TeamPage = () => {
   const { user, openLoginModal } = useAuth();
@@ -329,6 +330,7 @@ const TeamPage = () => {
 
   return (
     <div className="p-8 md:p-12 bg-gray-50/50 dark:bg-gray-900 min-h-full transition-colors duration-300">
+      <Toaster position="top-center" reverseOrder={false} />
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>

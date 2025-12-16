@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import ProgressBar from '../components/ProgressBar.jsx';
 import { taskService } from '../services/taskService.js';
+import { Toaster } from 'react-hot-toast';
 
 function ProgressPage() {
   const { user } = useAuth();
@@ -70,6 +71,8 @@ function ProgressPage() {
 
   return (
     <div className="p-8 md:p-12 bg-gray-50/50 dark:bg-gray-900 min-h-full transition-colors duration-300">
+      <Toaster position="top-center" reverseOrder={false} />
+      
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Progress Overview</h1>
