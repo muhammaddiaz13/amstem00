@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext.jsx';
 import Modal from './Modal.jsx';
 import TaskForm from './TaskForm.jsx';
 import { taskService } from '../services/taskService.js';
+import { ConfirmToast } from './ConfirmToast.jsx';
 
 const Sidebar = () => {
   const { user, logout, openLoginModal } = useAuth();
@@ -43,9 +44,10 @@ const Sidebar = () => {
 
   const handleAuthAction = () => {
     if (user) {
-      if(window.confirm("Are you sure you want to logout?")) {
+      // Menggunakan ConfirmToast menggantikan window.confirm
+      ConfirmToast("Are you sure you want to logout from your account?", () => {
         logout();
-      }
+      });
     } else {
       navigate('/login');
     }
