@@ -1,20 +1,37 @@
 import React from 'react';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 
 export const ConfirmToast = (message, onConfirm) => {
+  // 1. Deteksi konteks pesan (apakah untuk delete atau logout)
+  const lowerMsg = message.toLowerCase();
+  const isDelete = lowerMsg.includes('delete');
+  const isLogout = lowerMsg.includes('logout');
+  
+  // 2. Konfigurasi tampilan dinamis
+  const config = {
+    title: isLogout ? 'Confirm Logout' : (isDelete ? 'Delete Task' : 'Confirm Action'),
+    confirmBtnText: isLogout ? 'Yes, Logout' : (isDelete ? 'Yes, Delete' : 'Yes, Confirm'),
+    icon: isLogout ? 'fa-sign-out-alt' : (isDelete ? 'fa-trash-alt' : 'fa-question'),
+    // Merah untuk aksi destruktif (delete/logout), Biru untuk umum
+    iconBg: (isDelete || isLogout) ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500',
+    confirmBtnClass: (isDelete || isLogout) 
+      ? 'bg-red-600 hover:bg-red-700 shadow-red-200' 
+      : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'
+  };
+
   toast(
     (t) => (
       <div 
         className={`${
           t.visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-        } transition-all duration-200 flex flex-col items-center p-6 bg-white rounded-2xl shadow-2xl border border-gray-100 max-w-sm w-full mx-auto`}
+        } transform transition-all duration-200 pointer-events-auto flex flex-col items-center p-6 bg-white rounded-2xl shadow-2xl border border-gray-100 max-w-sm w-full mx-auto relative z-[9999]`}
       >
-        <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mb-4 text-red-500">
-            <i className="fas fa-trash-alt text-xl"></i>
+        <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 ${config.iconBg}`}>
+            <i className={`fas ${config.icon} text-xl`}></i>
         </div>
         
         <h3 className="text-lg font-bold text-gray-800 mb-2 text-center">
-          Confirm Action
+          {config.title}
         </h3>
         
         <p className="text-gray-500 text-center mb-6 text-sm leading-relaxed">
@@ -29,19 +46,19 @@ export const ConfirmToast = (message, onConfirm) => {
             Cancel
           </button>
           <button
-            className="flex-1 px-4 py-2.5 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 shadow-lg shadow-red-200 transition-all duration-200 transform hover:scale-[1.02]"
+            className={`flex-1 px-4 py-2.5 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 transform hover:scale-[1.02] ${config.confirmBtnClass}`}
             onClick={() => {
               toast.dismiss(t.id);
               onConfirm();
             }}
           >
-            Yes, Delete
+            {config.confirmBtnText}
           </button>
         </div>
       </div>
     ),
     {
-      duration: Infinity,
+      duration: Infinity, // Toast tidak akan hilang sampai diklik
       position: 'top-center',
       style: {
         background: 'transparent',

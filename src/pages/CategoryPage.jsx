@@ -4,6 +4,7 @@ import TaskCard from '../components/TaskCard.jsx';
 import Modal from '../components/Modal.jsx';
 import TaskForm from '../components/TaskForm.jsx';
 import { taskService } from '../services/taskService.js';
+import { Toaster } from 'react-hot-toast';
 
 const CategoryPage = ({ category }) => {
   const { user, openLoginModal } = useAuth();
@@ -109,6 +110,8 @@ const CategoryPage = ({ category }) => {
 
   return (
     <div className={`p-8 md:p-12 min-h-full ${theme.bg} transition-colors duration-300`}>
+      <Toaster position="top-center" reverseOrder={false} />
+
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>

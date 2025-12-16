@@ -4,6 +4,7 @@ import TaskCard from '../components/TaskCard.jsx';
 import Modal from '../components/Modal.jsx';
 import TaskForm from '../components/TaskForm.jsx';
 import { taskService } from '../services/taskService.js';
+import { Toaster } from 'react-hot-toast';
 
 const DashboardPage = () => {
   const { user, openLoginModal } = useAuth();
@@ -79,6 +80,9 @@ const DashboardPage = () => {
 
   return (
     <div className="p-8 md:p-12 bg-gray-50/50 min-h-full fade-in">
+      {/* Tambahkan Toaster di sini agar notifikasi muncul */}
+      <Toaster position="top-center" reverseOrder={false} />
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">

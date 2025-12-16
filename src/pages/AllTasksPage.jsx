@@ -4,6 +4,7 @@ import TaskCard from '../components/TaskCard.jsx';
 import Modal from '../components/Modal.jsx';
 import TaskForm from '../components/TaskForm.jsx';
 import { taskService } from '../services/taskService.js';
+import { Toaster } from 'react-hot-toast';
 
 const AllTasksPage = () => {
   const { user, openLoginModal } = useAuth();
@@ -84,6 +85,8 @@ const AllTasksPage = () => {
 
   return (
     <div className="p-8 md:p-12 bg-gray-50/50 min-h-full">
+      <Toaster position="top-center" reverseOrder={false} />
+
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">All Tasks</h1>
         <button onClick={handleAddTaskClick} className="bg-gray-800 text-white px-5 py-2.5 rounded-lg hover:bg-gray-900 transition-all font-medium flex items-center gap-2">
