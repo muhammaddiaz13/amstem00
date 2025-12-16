@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { authService } from '../services/authService.js';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 
 const RegisterPage = () => {
   const [username, setUsername] = useState('');
@@ -54,26 +54,20 @@ const RegisterPage = () => {
     }
   };
 
-  // Simulasi Google Login (Consistent with Login Page)
   const handleGoogleLogin = () => {
-    const toastId = toast.loading("Connecting to Google...");
-    
-    setTimeout(() => {
-        const mockGoogleUser = {
-            id: 'google-123',
-            username: 'Google User',
-            email: 'user@gmail.com',
-            token: 'mock-google-token'
-        };
-        
-        login(mockGoogleUser);
-        toast.success("Successfully signed up with Google!", { id: toastId });
-        navigate('/dashboard');
-    }, 1500);
+    toast("Sorry, Google Sign-Up is coming soon!", {
+        icon: '🚧',
+        style: {
+            borderRadius: '10px',
+            background: '#333',
+            color: '#fff',
+        },
+    });
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4 transition-colors duration-300">
+      <Toaster position="top-center" reverseOrder={false} />
       <div className="bg-white dark:bg-gray-800 p-10 rounded-2xl shadow-xl w-full max-w-sm border border-gray-100 dark:border-gray-700 animate-[fadeIn_0.5s_ease-out] transition-colors duration-300">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">AMStem</h1>
@@ -161,11 +155,11 @@ const RegisterPage = () => {
             </div>
         </div>
 
-        {/* Google Sign Up Button */}
+        {/* Google Sign Up Button (Coming Soon) */}
         <button
-            onClick={handleGoogleLogin}
             type="button"
-            className="w-full bg-white dark:bg-white text-gray-700 font-semibold py-3 rounded-xl border border-gray-300 hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-3 shadow-sm"
+            onClick={handleGoogleLogin}
+            className="w-full bg-white dark:bg-white text-gray-700 font-semibold py-3 rounded-xl border border-gray-300 hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-3 shadow-sm active:scale-95"
         >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
