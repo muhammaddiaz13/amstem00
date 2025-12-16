@@ -4,32 +4,44 @@ const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
-const STORAGE_KEY = 'amstem_user'; // konsisten dengan authService & api.js
-
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   useEffect(() => {
-    // Ambil data user dari localStorage saat aplikasi dimuat
-    const storedUser = localStorage.getItem(STORAGE_KEY);
+    // Cek user login dari localStorage saat aplikasi dimuat
+    const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        if (parsedUser) {
+           setUser(parsedUser);
+        }
       } catch (e) {
         console.error("Failed to parse user data", e);
+        localStorage.removeItem('user'); // Clean up bad data
       }
     }
   }, []);
 
   const login = (userData) => {
     setUser(userData);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('user');
+  };
+
+  // Fungsi baru untuk update data user tanpa logout
+  const updateUser = (updatedData) => {
+    setUser((prevUser) => {
+      if (!prevUser) return null;
+      const newUser = { ...prevUser, ...updatedData };
+      localStorage.setItem('user', JSON.stringify(newUser));
+      return newUser;
+    });
   };
 
   const openLoginModal = () => setIsLoginModalOpen(true);
@@ -39,7 +51,8 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider value={{ 
       user, 
       login, 
-      logout, 
+      logout,
+      updateUser, 
       isLoginModalOpen, 
       openLoginModal, 
       closeLoginModal 

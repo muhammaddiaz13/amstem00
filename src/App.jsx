@@ -65,7 +65,7 @@ const App = () => {
 
       {/* 
          Main layout container
-         Fixed: Removed pt-16 when on Auth Pages to prevent content from being pushed down.
+         Logic: Removed pt-16 when on Auth Pages to prevent content from being pushed down.
       */}
       <div className={`flex h-screen overflow-hidden ${!isAuthPage ? 'pt-16' : ''}`}>
         {/* Sidebar */}
@@ -76,10 +76,7 @@ const App = () => {
           />
         )}
 
-        {/* Main Content Area 
-            - Logic Margin: Jika Desktop & Open -> ml-64. Jika Closed -> ml-0.
-            - Mobile: Selalu ml-0 (karena sidebar overlay).
-        */}
+        {/* Main Content Area */}
         <div 
           className={`flex-1 overflow-y-auto transition-all duration-300 h-full p-0
             ${!isAuthPage && isSidebarOpen ? 'md:ml-64' : 'md:ml-0'} 
