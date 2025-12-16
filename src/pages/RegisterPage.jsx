@@ -55,7 +55,7 @@ const RegisterPage = () => {
   };
 
   const handleGoogleLogin = () => {
-    toast("Sorry, Google Sign-Up is coming soon!", {
+    toast("Sorry :(, Google Sign-Up is coming soon!", {
         icon: '🚧',
         style: {
             borderRadius: '10px',
