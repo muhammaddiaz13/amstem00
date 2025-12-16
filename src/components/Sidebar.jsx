@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useTheme } from '../contexts/ThemeContext.jsx';
@@ -6,11 +6,20 @@ import Modal from './Modal.jsx';
 import TaskForm from './TaskForm.jsx';
 import { taskService } from '../services/taskService.js';
 import { ConfirmToast } from './ConfirmToast.jsx';
+import { toast } from 'react-hot-toast';
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const { user, logout, openLoginModal } = useAuth();
+  const { user, logout, openLoginModal, updateUser } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  
+  // State untuk Task Modal
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  
+  // State untuk Profile Modal
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [editUsername, setEditUsername] = useState('');
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+
   const navigate = useNavigate();
 
   const navLinkClasses = ({ isActive }) =>
@@ -20,12 +29,66 @@ const Sidebar = ({ isOpen, onClose }) => {
         : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200'
     }`;
 
+  // Reset form saat modal profile dibuka, dengan safety check
+  useEffect(() => {
+    if (user && isProfileModalOpen) {
+      setEditUsername(user.username || '');
+    }
+  }, [user, isProfileModalOpen]);
+
+  // Helper untuk mendapatkan inisial dengan aman
+  const getUserInitial = () => {
+    if (user && user.username && user.username.length > 0) {
+      return user.username[0].toUpperCase();
+    }
+    return '?';
+  };
+
+  // Helper untuk mendapatkan username dengan aman
+  const getUsername = () => {
+    return (user && user.username) ? user.username : 'Anonymous';
+  };
+
   const handleNewAssignmentClick = () => {
     if (!user) {
       openLoginModal();
     } else {
       setIsTaskModalOpen(true);
-      if(window.innerWidth < 768) onClose(); // Close sidebar on mobile when action taken
+      if(window.innerWidth < 768) onClose(); 
+    }
+  };
+
+  const handleProfileClick = () => {
+    if (!user) {
+      openLoginModal();
+    } else {
+      setIsProfileModalOpen(true);
+      if(window.innerWidth < 768) onClose();
+    }
+  };
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    if (!editUsername.trim()) {
+      toast.error("Username cannot be empty");
+      return;
+    }
+
+    setIsEditingProfile(true);
+    try {
+      if (updateUser) {
+        updateUser({ username: editUsername });
+        toast.success("Profile updated successfully!");
+        setIsProfileModalOpen(false);
+      } else {
+        console.error("updateUser function not found in AuthContext");
+        toast.error("Update function missing. Refresh page.");
+      }
+    } catch (error) {
+      console.error("Failed to update profile", error);
+      toast.error("Failed to update profile");
+    } finally {
+      setIsEditingProfile(false);
     }
   };
 
@@ -57,13 +120,12 @@ const Sidebar = ({ isOpen, onClose }) => {
   };
 
   const handleNavClick = () => {
-      // Auto close only on mobile
       if(window.innerWidth < 768) onClose();
   };
 
   return (
     <>
-      {/* Mobile Overlay - Only visible on mobile when open */}
+      {/* Mobile Overlay */}
       <div 
         className={`fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-30 transition-opacity duration-300 md:hidden ${
           isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
@@ -72,7 +134,6 @@ const Sidebar = ({ isOpen, onClose }) => {
       ></div>
 
       {/* Sidebar Container */}
-      {/* Note: Removed 'top-0' and changed to 'top-16' to sit below the header */}
       <div 
         className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col z-30 transition-transform duration-300 ease-in-out transform ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
@@ -81,15 +142,21 @@ const Sidebar = ({ isOpen, onClose }) => {
         
         {/* Scrollable Content */}
         <div className="overflow-y-auto flex-grow p-4 no-scrollbar">
-          {/* User Profile Snippet */}
-          <div className="flex items-center mb-6 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 transition-colors duration-300">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-3 shadow-sm ${user ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
-              {user ? user.username[0].toUpperCase() : '?'}
+          {/* User Profile Snippet - Now Clickable */}
+          <div 
+            onClick={handleProfileClick}
+            className="flex items-center mb-6 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 transition-all duration-300 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 group"
+          >
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-3 shadow-sm transition-transform group-hover:scale-105 ${user ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
+              {getUserInitial()}
             </div>
-            <div className="overflow-hidden">
-              <p className="font-semibold text-gray-800 dark:text-gray-200 truncate text-sm">
-                {user ? user.username : 'Anonymous'}
-              </p>
+            <div className="overflow-hidden flex-1">
+              <div className="flex justify-between items-center">
+                <p className="font-semibold text-gray-800 dark:text-gray-200 truncate text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {getUsername()}
+                </p>
+                {user && <i className="fas fa-pen text-[10px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>}
+              </div>
               <div className="flex items-center mt-0.5">
                 <span className={`w-2 h-2 rounded-full mr-1.5 ${user ? 'bg-green-500' : 'bg-gray-400'}`}></span>
                 <p className="text-xs text-gray-500 dark:text-gray-400">{user ? 'Online' : 'Guest Mode'}</p>
@@ -132,8 +199,6 @@ const Sidebar = ({ isOpen, onClose }) => {
 
         {/* Footer Actions */}
         <div className="p-4 border-t border-gray-100 dark:border-gray-800 flex-shrink-0 space-y-3 bg-white dark:bg-gray-900 transition-colors duration-300">
-           
-           {/* Dark Mode Toggle */}
            <button
             onClick={toggleTheme}
             className="w-full flex items-center justify-between px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
@@ -167,9 +232,65 @@ const Sidebar = ({ isOpen, onClose }) => {
         </div>
       </div>
 
-      {/* Modals */}
+      {/* Task Modal */}
       <Modal isOpen={isTaskModalOpen} onClose={() => setIsTaskModalOpen(false)} title="New Task">
         <TaskForm onSubmit={handleTaskSubmit} />
+      </Modal>
+
+      {/* Profile Modal */}
+      <Modal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} title="User Profile">
+        <div className="flex flex-col items-center">
+          {/* Avatar Besar */}
+          <div className="w-24 h-24 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center text-4xl font-bold mb-6 shadow-lg">
+             {getUserInitial()}
+          </div>
+
+          <form onSubmit={handleUpdateProfile} className="w-full space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Email Address
+              </label>
+              <input 
+                type="email" 
+                value={user?.email || ''} 
+                disabled 
+                className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+              />
+              <p className="text-xs text-gray-400 mt-1">Email cannot be changed.</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Username
+              </label>
+              <input 
+                type="text" 
+                value={editUsername} 
+                onChange={(e) => setEditUsername(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white"
+                placeholder="Enter your username"
+                required
+              />
+            </div>
+
+            <div className="pt-4 flex gap-3">
+               <button
+                type="button"
+                onClick={() => setIsProfileModalOpen(false)}
+                className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+               >
+                 Cancel
+               </button>
+               <button
+                type="submit"
+                disabled={isEditingProfile}
+                className="flex-1 px-4 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 dark:shadow-none disabled:opacity-70 flex items-center justify-center gap-2"
+               >
+                 {isEditingProfile ? 'Saving...' : 'Save Changes'}
+               </button>
+            </div>
+          </form>
+        </div>
       </Modal>
     </>
   );
