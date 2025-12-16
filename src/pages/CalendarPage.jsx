@@ -149,18 +149,18 @@ const CalendarPage = () => {
   };
 
   return (
-    <div className="p-8 md:p-12 bg-gray-50/50 dark:bg-gray-900 min-h-full transition-colors duration-300">
+    <div className="p-4 md:p-12 bg-gray-50/50 dark:bg-gray-900 min-h-full transition-colors duration-300">
       <Toaster position="top-center" reverseOrder={false} />
       
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Task Calendar</h1>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 gap-3">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Task Calendar</h1>
         <button 
           onClick={() => {
             const today = new Date();
             setSelectedDate(today);
             setCurrentDate(today);
           }}
-          className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline"
+          className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline self-end md:self-auto"
         >
           Jump to Today
         </button>
@@ -184,8 +184,8 @@ const CalendarPage = () => {
 
       {/* Task List Section - Updated Style from Team */}
       <div className="mt-8 animate-[fadeIn_0.3s_ease-out]">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-bold text-gray-800 dark:text-white">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white">
                 Tasks for {selectedDate.toDateString()}
             </h3>
             <button 
@@ -193,14 +193,14 @@ const CalendarPage = () => {
                     if(!user) openLoginModal();
                     else setIsModalOpen(true);
                 }}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all shadow-md shadow-blue-200 dark:shadow-none text-sm font-semibold flex items-center gap-2"
+                className="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all shadow-md shadow-blue-200 dark:shadow-none text-sm font-semibold flex items-center justify-center gap-2"
             >
                 <i className="fas fa-plus"></i> Add Task
             </button>
           </div>
 
           {selectedTasks.length === 0 ? (
-              <div className="bg-white dark:bg-gray-800 p-12 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 text-center transition-colors duration-300">
+              <div className="bg-white dark:bg-gray-800 p-8 md:p-12 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 text-center transition-colors duration-300">
                   <div className="w-16 h-16 bg-gray-50 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
                       <i className="fas fa-calendar-check text-2xl text-gray-400"></i>
                   </div>

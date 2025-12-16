@@ -87,20 +87,20 @@ const DashboardPage = () => {
   const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
 
   return (
-    <div className="p-8 md:p-12 bg-gray-50/50 dark:bg-gray-900 min-h-full fade-in transition-colors duration-300">
+    <div className="p-4 md:p-12 bg-gray-50/50 dark:bg-gray-900 min-h-full fade-in transition-colors duration-300">
       <Toaster position="top-center" reverseOrder={false} />
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-10 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-            {greeting}, {user ? user.username : 'Guest'}! 👋
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+            {greeting}, <span className="block md:inline">{user ? user.username : 'Guest'}! 👋</span>
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Here's what's happening with your assignments today.</p>
+          <p className="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-1">Here's what's happening today.</p>
         </div>
         
         <button
           onClick={handleAddTaskClick}
-          className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 dark:shadow-none flex items-center font-semibold transform hover:-translate-y-0.5"
+          className="w-full md:w-auto bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 dark:shadow-none flex items-center justify-center font-semibold transform hover:-translate-y-0.5"
         >
           <span className="mr-2 text-xl leading-none">+</span> New Assignment
         </button>
@@ -125,7 +125,7 @@ const DashboardPage = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-[fadeIn_0.3s_ease-out]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 animate-[fadeIn_0.3s_ease-out]">
             {tasks.map(task => (
               <TaskCard 
                 key={task.id} 
