@@ -93,36 +93,42 @@ const AllTasksPage = () => {
   });
 
   return (
-    <div className="p-8 md:p-12 bg-gray-50/50 min-h-full">
+    <div className="p-8 md:p-12 bg-gray-50/50 dark:bg-gray-900 min-h-full transition-colors duration-300">
       <Toaster position="top-center" reverseOrder={false} />
 
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">All Tasks</h1>
-        <button onClick={handleAddTaskClick} className="bg-gray-800 text-white px-5 py-2.5 rounded-lg hover:bg-gray-900 transition-all font-medium flex items-center gap-2">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">All Tasks</h1>
+        <button onClick={handleAddTaskClick} className="bg-gray-800 hover:bg-gray-900 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg transition-all font-medium flex items-center gap-2 shadow-lg dark:shadow-none">
           <i className="fas fa-plus"></i> Add New
         </button>
       </div>
 
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-8 space-y-4 md:space-y-0 md:flex md:gap-4 md:items-center">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8 space-y-4 md:space-y-0 md:flex md:gap-4 md:items-center transition-colors duration-300">
         <div className="relative flex-grow">
           <input
             type="text"
             placeholder="Search assignments..."
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <span className="absolute left-3 top-3 text-gray-400">🔍</span>
         </div>
         
-        <select className="px-3 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-sm" onChange={(e) => setPriorityFilter(e.target.value)}>
+        <select 
+            className="px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none" 
+            onChange={(e) => setPriorityFilter(e.target.value)}
+        >
           <option value="All">All Priorities</option>
           <option value="High">High</option>
           <option value="Medium">Medium</option>
           <option value="Low">Low</option>
         </select>
 
-        <select className="px-3 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-sm" onChange={(e) => setStatusFilter(e.target.value)}>
+        <select 
+            className="px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none" 
+            onChange={(e) => setStatusFilter(e.target.value)}
+        >
           <option value="All">All Status</option>
           <option value="Unfinished">Unfinished</option>
           <option value="In Progress">In Progress</option>
@@ -131,7 +137,7 @@ const AllTasksPage = () => {
       </div>
 
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+        <div className="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-500">
           <i className="fas fa-circle-notch fa-spin text-3xl mb-3 text-blue-500"></i>
           <p>Loading tasks...</p>
         </div>
@@ -147,8 +153,8 @@ const AllTasksPage = () => {
               />
             ))
           ) : (
-            <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-dashed border-gray-200">
-              <i className="far fa-folder-open text-3xl mb-3 text-gray-300"></i>
+            <div className="text-center py-12 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 transition-colors">
+              <i className="far fa-folder-open text-3xl mb-3 text-gray-300 dark:text-gray-600"></i>
               <p>No tasks match your filters.</p>
             </div>
           )}

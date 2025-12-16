@@ -28,13 +28,13 @@ const TaskForm = ({ onSubmit, initialData = {} }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label htmlFor="taskTitle" className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label htmlFor="taskTitle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
           Assignment Title <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
           id="taskTitle"
-          className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 transition-all"
+          className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
           placeholder="e.g. Complete Calculus Homework"
           value={taskTitle}
           onChange={(e) => setTaskTitle(e.target.value)}
@@ -43,13 +43,13 @@ const TaskForm = ({ onSubmit, initialData = {} }) => {
       </div>
 
       <div>
-        <label htmlFor="taskDescription" className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label htmlFor="taskDescription" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
           Description
         </label>
         <textarea
           id="taskDescription"
           rows={3}
-          className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 transition-all resize-none"
+          className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white transition-all resize-none"
           placeholder="Add details about this assignment..."
           value={taskDescription}
           onChange={(e) => setTaskDescription(e.target.value)}
@@ -58,12 +58,12 @@ const TaskForm = ({ onSubmit, initialData = {} }) => {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="taskCategory" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="taskCategory" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             Category <span className="text-red-500">*</span>
           </label>
           <select
             id="taskCategory"
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 transition-all appearance-none"
+            className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white transition-all appearance-none"
             value={taskCategory}
             onChange={(e) => setTaskCategory(e.target.value)}
             required
@@ -76,12 +76,12 @@ const TaskForm = ({ onSubmit, initialData = {} }) => {
         </div>
 
         <div>
-          <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="priority" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             Priority
           </label>
           <select
             id="priority"
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 transition-all appearance-none"
+            className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white transition-all appearance-none"
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
           >
@@ -94,12 +94,12 @@ const TaskForm = ({ onSubmit, initialData = {} }) => {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="taskStatus" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="taskStatus" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             Status
           </label>
           <select
             id="taskStatus"
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 transition-all appearance-none"
+            className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white transition-all appearance-none"
             value={taskStatus}
             onChange={(e) => setTaskStatus(e.target.value)}
           >
@@ -110,13 +110,13 @@ const TaskForm = ({ onSubmit, initialData = {} }) => {
         </div>
 
         <div>
-          <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             Due Date <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
             id="dueDate"
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 transition-all"
+            className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white transition-all"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
             required
@@ -124,10 +124,10 @@ const TaskForm = ({ onSubmit, initialData = {} }) => {
         </div>
       </div>
 
-      <div className="flex justify-end gap-3 mt-8 border-t border-gray-100 pt-5">
+      <div className="flex justify-end gap-3 mt-8 border-t border-gray-100 dark:border-gray-700 pt-5">
         <button
           type="submit"
-          className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 font-semibold shadow-lg shadow-blue-200"
+          className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 font-semibold shadow-lg shadow-blue-200 dark:shadow-none"
         >
           {initialData.id ? 'Save Changes' : 'Create Assignment'}
         </button>

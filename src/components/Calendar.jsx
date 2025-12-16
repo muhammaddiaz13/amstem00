@@ -70,11 +70,11 @@ const Calendar = ({
       if (isSelected) {
          dayClasses += "bg-blue-600 text-white border-blue-600 shadow-md z-10";
       } else if (isToday) {
-         dayClasses += "bg-white text-blue-600 border-blue-200 font-bold hover:bg-blue-50";
+         dayClasses += "bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 font-bold hover:bg-blue-50 dark:hover:bg-gray-700";
       } else if (dayTasks.length > 0) {
-         dayClasses += "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100";
+         dayClasses += "bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700";
       } else {
-         dayClasses += "bg-white text-gray-700 border-gray-100 hover:bg-gray-50";
+         dayClasses += "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700";
       }
 
       days.push(
@@ -83,7 +83,7 @@ const Calendar = ({
           onClick={() => onDateClick(date)}
           className={dayClasses}
         >
-          <span className={`text-sm font-medium ${isSelected ? 'text-white' : 'text-gray-700'} mb-1`}>{day}</span>
+          <span className={`text-sm font-medium ${isSelected ? 'text-white' : 'text-gray-700 dark:text-gray-300'} mb-1`}>{day}</span>
           
           {/* Priority Dots Indicator */}
           {dayTasks.length > 0 && (
@@ -100,17 +100,17 @@ const Calendar = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8 max-w-4xl mx-auto animate-[fadeIn_0.5s_ease-out]">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8 max-w-4xl mx-auto animate-[fadeIn_0.5s_ease-out] transition-colors duration-300">
       {/* Header Navigation */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-gray-800">
+        <h2 className="text-xl font-bold text-gray-800 dark:text-white">
           {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
         </h2>
         <div className="flex gap-2">
-          <button onClick={onPrevMonth} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors">
+          <button onClick={onPrevMonth} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-300 transition-colors">
             <i className="fas fa-chevron-left text-sm"></i>
           </button>
-          <button onClick={onNextMonth} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors">
+          <button onClick={onNextMonth} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-300 transition-colors">
             <i className="fas fa-chevron-right text-sm"></i>
           </button>
         </div>
@@ -119,7 +119,7 @@ const Calendar = ({
       {/* Day Names Header */}
       <div className="grid grid-cols-7 mb-2 text-center">
         {dayNames.map(day => (
-          <div key={day} className="text-blue-600 font-semibold py-2 text-xs uppercase tracking-wide">{day}</div>
+          <div key={day} className="text-blue-600 dark:text-blue-400 font-semibold py-2 text-xs uppercase tracking-wide">{day}</div>
         ))}
       </div>
 

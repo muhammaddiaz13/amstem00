@@ -1,43 +1,50 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authService } from '../services/authService.js';
 
-const AuthContext = createContext(undefined);
+const AuthContext = createContext();
+
+export const useAuth = () => useContext(AuthContext);
+
+const STORAGE_KEY = 'amstem_user'; // konsisten dengan authService & api.js
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   useEffect(() => {
-    const currentUser = authService.getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
+    // Ambil data user dari localStorage saat aplikasi dimuat
+    const storedUser = localStorage.getItem(STORAGE_KEY);
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error("Failed to parse user data", e);
+      }
     }
   }, []);
 
   const login = (userData) => {
     setUser(userData);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
   };
 
   const logout = () => {
-    authService.logout();
     setUser(null);
-    window.location.href = '/login'; 
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   const openLoginModal = () => setIsLoginModalOpen(true);
   const closeLoginModal = () => setIsLoginModalOpen(false);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoginModalOpen, openLoginModal, closeLoginModal }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      logout, 
+      isLoginModalOpen, 
+      openLoginModal, 
+      closeLoginModal 
+    }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };
