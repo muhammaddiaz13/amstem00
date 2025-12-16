@@ -13,9 +13,9 @@ const ProgressBar = ({ progress, showPercentage = true, height = 10, showLabel =
     <div className="w-full">
       {showLabel && (
         <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-700">{label}</span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
           {showPercentage && (
-            <span className="text-sm font-semibold text-gray-800">
+            <span className="text-sm font-semibold text-gray-800 dark:text-white">
               {progress}%
             </span>
           )}
@@ -24,7 +24,7 @@ const ProgressBar = ({ progress, showPercentage = true, height = 10, showLabel =
       
       <div className="flex items-center gap-3">
         <div 
-          className={`flex-1 bg-gray-200 rounded-full overflow-hidden ${height === 12 ? 'h-3' : height === 8 ? 'h-2' : 'h-2.5'}`}
+          className={`flex-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden ${height === 12 ? 'h-3' : height === 8 ? 'h-2' : 'h-2.5'}`}
         >
           <div 
             className={`h-full rounded-full transition-all duration-500 ease-in-out ${getProgressColor()}`}
@@ -33,7 +33,7 @@ const ProgressBar = ({ progress, showPercentage = true, height = 10, showLabel =
         </div>
         
         {!showLabel && showPercentage && (
-          <span className="text-sm font-semibold text-gray-800 min-w-[50px]">
+          <span className="text-sm font-semibold text-gray-800 dark:text-white min-w-[50px]">
             {progress}%
           </span>
         )}

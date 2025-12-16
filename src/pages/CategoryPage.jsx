@@ -92,23 +92,23 @@ const CategoryPage = ({ category }) => {
   const getTheme = () => {
     switch(category) {
       case 'Work': return { 
-        bg: 'bg-slate-50', 
-        accent: 'text-slate-700', 
-        btn: 'bg-slate-700 hover:bg-slate-800', 
+        bg: 'bg-slate-50 dark:bg-slate-900', 
+        accent: 'text-slate-700 dark:text-slate-200', 
+        btn: 'bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-500', 
         icon: '💼',
         desc: 'Professional commitments and projects'
       };
       case 'Others': return { 
-        bg: 'bg-orange-50', 
-        accent: 'text-orange-700', 
-        btn: 'bg-orange-600 hover:bg-orange-700', 
+        bg: 'bg-orange-50 dark:bg-orange-950', 
+        accent: 'text-orange-700 dark:text-orange-200', 
+        btn: 'bg-orange-600 hover:bg-orange-700 dark:bg-orange-700 dark:hover:bg-orange-600', 
         icon: '📦',
         desc: 'Miscellaneous tasks and shopping lists'
       };
       default: return { 
-        bg: 'bg-blue-50', 
-        accent: 'text-blue-700', 
-        btn: 'bg-blue-600 hover:bg-blue-700', 
+        bg: 'bg-blue-50 dark:bg-gray-900', 
+        accent: 'text-blue-700 dark:text-blue-200', 
+        btn: 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500', 
         icon: '👤',
         desc: 'Personal goals and daily errands'
       };
@@ -128,24 +128,24 @@ const CategoryPage = ({ category }) => {
                 <span className="text-4xl">{theme.icon}</span>
                 <h1 className={`text-3xl font-bold ${theme.accent}`}>{category}</h1>
             </div>
-            <p className="text-gray-500 font-medium">{theme.desc}</p>
+            <p className="text-gray-500 dark:text-gray-400 font-medium">{theme.desc}</p>
         </div>
         
         <button 
             onClick={handleAddTaskClick} 
-            className={`${theme.btn} text-white px-6 py-3 rounded-xl shadow-lg shadow-gray-200 transition-all transform hover:-translate-y-1 font-semibold flex items-center gap-2`}
+            className={`${theme.btn} text-white px-6 py-3 rounded-xl shadow-lg shadow-gray-200 dark:shadow-none transition-all transform hover:-translate-y-1 font-semibold flex items-center gap-2`}
         >
           <span className="text-xl">+</span> Add {category} Task
         </button>
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-8 space-y-4 md:space-y-0 md:flex md:gap-4 md:items-center">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-8 space-y-4 md:space-y-0 md:flex md:gap-4 md:items-center transition-colors duration-300">
         <div className="relative flex-grow">
           <input
             type="text"
             placeholder={`Search ${category} tasks...`}
-            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none transition-all"
+            className="w-full pl-10 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -153,7 +153,7 @@ const CategoryPage = ({ category }) => {
         </div>
         
         <select 
-            className="px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20" 
+            className="px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20" 
             onChange={(e) => setStatusFilter(e.target.value)}
         >
           <option value="All">All Status</option>
@@ -164,7 +164,7 @@ const CategoryPage = ({ category }) => {
       </div>
 
       {/* Tasks Grid */}
-      {isLoading ? <div className="text-center">Loading...</div> : (
+      {isLoading ? <div className="text-center text-gray-500 dark:text-gray-400">Loading...</div> : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTasks.length > 0 ? (
                 filteredTasks.map(task => (
@@ -176,7 +176,7 @@ const CategoryPage = ({ category }) => {
                 />
                 ))
             ) : (
-                <div className="col-span-full py-16 text-center bg-white rounded-3xl border border-dashed border-gray-200">
+                <div className="col-span-full py-16 text-center bg-white dark:bg-gray-800 rounded-3xl border border-dashed border-gray-200 dark:border-gray-700 transition-colors duration-300">
                     <div className="text-6xl mb-4 opacity-50">{theme.icon}</div>
                     <h3 className="text-xl font-bold text-gray-400">No {category} tasks found</h3>
                     <p className="text-gray-400 mt-2">Start by adding a new assignment above!</p>

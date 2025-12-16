@@ -13,10 +13,10 @@ export const ConfirmToast = (message, onConfirm) => {
     confirmBtnText: isLogout ? 'Yes, Logout' : (isDelete ? 'Yes, Delete' : 'Yes, Confirm'),
     icon: isLogout ? 'fa-sign-out-alt' : (isDelete ? 'fa-trash-alt' : 'fa-question'),
     // Merah untuk aksi destruktif (delete/logout), Biru untuk umum
-    iconBg: (isDelete || isLogout) ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500',
+    iconBg: (isDelete || isLogout) ? 'bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400' : 'bg-blue-50 dark:bg-blue-900/30 text-blue-500 dark:text-blue-400',
     confirmBtnClass: (isDelete || isLogout) 
-      ? 'bg-red-600 hover:bg-red-700 shadow-red-200' 
-      : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'
+      ? 'bg-red-600 hover:bg-red-700 shadow-red-200 dark:shadow-none' 
+      : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200 dark:shadow-none'
   };
 
   toast(
@@ -24,23 +24,23 @@ export const ConfirmToast = (message, onConfirm) => {
       <div 
         className={`${
           t.visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-        } transform transition-all duration-200 pointer-events-auto flex flex-col items-center p-6 bg-white rounded-2xl shadow-2xl border border-gray-100 max-w-sm w-full mx-auto relative z-[9999]`}
+        } transform transition-all duration-200 pointer-events-auto flex flex-col items-center p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 max-w-sm w-full mx-auto relative z-[9999]`}
       >
         <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 ${config.iconBg}`}>
             <i className={`fas ${config.icon} text-xl`}></i>
         </div>
         
-        <h3 className="text-lg font-bold text-gray-800 mb-2 text-center">
+        <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2 text-center">
           {config.title}
         </h3>
         
-        <p className="text-gray-500 text-center mb-6 text-sm leading-relaxed">
+        <p className="text-gray-500 dark:text-gray-400 text-center mb-6 text-sm leading-relaxed">
           {message}
         </p>
         
         <div className="flex gap-3 w-full">
           <button
-            className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors duration-200"
+            className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
             onClick={() => toast.dismiss(t.id)}
           >
             Cancel

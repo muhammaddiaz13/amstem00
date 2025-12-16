@@ -4,6 +4,8 @@ import Calendar from '../components/Calendar';
 import Modal from '../components/Modal';
 import TaskForm from '../components/TaskForm';
 import { taskService } from '../services/taskService.js';
+import { ConfirmToast } from '../components/ConfirmToast';
+import { Toaster, toast } from 'react-hot-toast';
 
 const CalendarPage = () => {
   const { user, openLoginModal } = useAuth();
@@ -69,22 +71,24 @@ const CalendarPage = () => {
       // Update local state
       setTasks([...tasks, createdTask]);
       setIsModalOpen(false);
+      toast.success("Task added successfully!");
     } catch (error) {
       console.error("Failed to create task", error);
-      alert("Failed to save task. Please try again.");
+      toast.error("Failed to save task. Please try again.");
     }
   };
 
-  const handleDeleteTask = async (taskId) => {
-    if(window.confirm("Are you sure you want to delete this task?")){
+  const handleDeleteTask = (taskId) => {
+    ConfirmToast("Are you sure you want to delete this task? This action cannot be undone.", async () => {
        try {
          await taskService.delete(taskId);
-         setTasks(tasks.filter(t => t.id !== taskId));
+         setTasks(prevTasks => prevTasks.filter(t => t.id !== taskId));
+         toast.success("Task deleted successfully!");
        } catch (error) {
          console.error("Failed to delete task", error);
-         alert("Failed to delete task.");
+         toast.error("Failed to delete task.");
        }
-    }
+    });
   };
 
   // Logic baru dari team: Toggle Status via Checkbox (Updated with API)
@@ -108,10 +112,12 @@ const CalendarPage = () => {
 
       try {
           await taskService.update(taskId, updatedFields);
+          if (isChecked) toast.success("Task completed!");
       } catch (error) {
           console.error("Failed to update status", error);
           // Revert if failed
           fetchTasks();
+          toast.error("Failed to update status");
       }
   };
 
@@ -126,10 +132,10 @@ const CalendarPage = () => {
   // Helper styles based on update
   const getPriorityColor = (priority) => {
     switch(priority) {
-        case 'High': return 'border-l-4 border-red-500 bg-red-50/50';
-        case 'Medium': return 'border-l-4 border-yellow-500 bg-yellow-50/50';
-        case 'Low': return 'border-l-4 border-green-500 bg-green-50/50';
-        default: return 'border-l-4 border-gray-300 bg-gray-50';
+        case 'High': return 'border-l-4 border-red-500 bg-red-50/50 dark:bg-red-900/10';
+        case 'Medium': return 'border-l-4 border-yellow-500 bg-yellow-50/50 dark:bg-yellow-900/10';
+        case 'Low': return 'border-l-4 border-green-500 bg-green-50/50 dark:bg-green-900/10';
+        default: return 'border-l-4 border-gray-300 bg-gray-50 dark:bg-gray-800';
     }
   };
 
@@ -143,16 +149,18 @@ const CalendarPage = () => {
   };
 
   return (
-    <div className="p-8 md:p-12 bg-gray-50/50 min-h-full">
+    <div className="p-8 md:p-12 bg-gray-50/50 dark:bg-gray-900 min-h-full transition-colors duration-300">
+      <Toaster position="top-center" reverseOrder={false} />
+      
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Task Calendar</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Task Calendar</h1>
         <button 
           onClick={() => {
             const today = new Date();
             setSelectedDate(today);
             setCurrentDate(today);
           }}
-          className="text-sm text-blue-600 font-medium hover:underline"
+          className="text-sm text-blue-600 dark:text-blue-400 font-medium hover:underline"
         >
           Jump to Today
         </button>
@@ -177,7 +185,7 @@ const CalendarPage = () => {
       {/* Task List Section - Updated Style from Team */}
       <div className="mt-8 animate-[fadeIn_0.3s_ease-out]">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-bold text-gray-800">
+            <h3 className="text-xl font-bold text-gray-800 dark:text-white">
                 Tasks for {selectedDate.toDateString()}
             </h3>
             <button 
@@ -185,19 +193,19 @@ const CalendarPage = () => {
                     if(!user) openLoginModal();
                     else setIsModalOpen(true);
                 }}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all shadow-md shadow-blue-200 text-sm font-semibold flex items-center gap-2"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all shadow-md shadow-blue-200 dark:shadow-none text-sm font-semibold flex items-center gap-2"
             >
                 <i className="fas fa-plus"></i> Add Task
             </button>
           </div>
 
           {selectedTasks.length === 0 ? (
-              <div className="bg-white p-12 rounded-xl border border-dashed border-gray-300 text-center">
-                  <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-white dark:bg-gray-800 p-12 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 text-center transition-colors duration-300">
+                  <div className="w-16 h-16 bg-gray-50 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
                       <i className="fas fa-calendar-check text-2xl text-gray-400"></i>
                   </div>
-                  <p className="text-gray-500 font-medium">No tasks scheduled for this day.</p>
-                  <p className="text-sm text-gray-400 mt-1">Enjoy your free time!</p>
+                  <p className="text-gray-500 dark:text-gray-400 font-medium">No tasks scheduled for this day.</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Enjoy your free time!</p>
               </div>
           ) : (
               <div className="space-y-4">
@@ -207,7 +215,7 @@ const CalendarPage = () => {
                       return (
                         <div 
                           key={task.id} 
-                          className={`bg-white rounded-xl shadow-sm p-4 flex items-center gap-4 transition-all hover:shadow-md ${getPriorityColor(task.priority)}`}
+                          className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 flex items-center gap-4 transition-all hover:shadow-md ${getPriorityColor(task.priority)}`}
                         >
                             {/* Checkbox Action */}
                             <div className="flex-shrink-0">
@@ -225,22 +233,22 @@ const CalendarPage = () => {
                             {/* Content */}
                             <div className="flex-grow min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <h4 className={`font-semibold text-gray-800 truncate ${isCompleted ? 'line-through text-gray-500' : ''}`}>
+                                    <h4 className={`font-semibold text-gray-800 dark:text-gray-100 truncate ${isCompleted ? 'line-through text-gray-500' : ''}`}>
                                         {task.taskTitle}
                                     </h4>
                                     <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
-                                        task.priority === 'High' ? 'bg-red-100 text-red-700' :
-                                        task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                                        'bg-green-100 text-green-700'
+                                        task.priority === 'High' ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' :
+                                        task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300' :
+                                        'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
                                     }`}>
                                         {task.priority}
                                     </span>
                                 </div>
-                                <p className="text-sm text-gray-500 truncate mb-2">
+                                <p className="text-sm text-gray-500 dark:text-gray-400 truncate mb-2">
                                     {task.taskDescription || "No description"}
                                 </p>
                                 
-                                <div className="flex items-center gap-4 text-xs text-gray-400">
+                                <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
                                     <span className="flex items-center gap-1">
                                         <i className={`fas ${getCategoryIcon(task.taskCategory)}`}></i>
                                         {task.taskCategory}
@@ -258,7 +266,7 @@ const CalendarPage = () => {
                                     if(!user) openLoginModal();
                                     else handleDeleteTask(task.id);
                                 }}
-                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                             >
                                 <i className="fas fa-trash-alt"></i>
                             </button>
