@@ -12,16 +12,19 @@ const TeamPage = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
 
-  // Hapus data dummy, inisialisasi dengan array kosong
-  const initialTaskAssignments = [];
-
   useEffect(() => {
     const savedAssignments = JSON.parse(localStorage.getItem('taskAssignments'));
     
-    // Jika ada data tersimpan (walaupun array kosong), gunakan itu.
-    // Jika null (belum pernah buka halaman ini), gunakan array kosong.
     if (savedAssignments) {
-      setTaskAssignments(savedAssignments);
+      // Filter out the specific dummy data (ID '1') that might persist in users' local storage
+      const cleanedAssignments = savedAssignments.filter(task => task.id !== '1');
+      
+      setTaskAssignments(cleanedAssignments);
+      
+      // Update local storage if we removed the dummy data
+      if (cleanedAssignments.length !== savedAssignments.length) {
+        localStorage.setItem('taskAssignments', JSON.stringify(cleanedAssignments));
+      }
     } else {
       setTaskAssignments([]);
       localStorage.setItem('taskAssignments', JSON.stringify([]));
