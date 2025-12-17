@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useTheme } from '../contexts/ThemeContext.jsx';
@@ -19,6 +19,10 @@ const Sidebar = ({ isOpen, onClose }) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [editUsername, setEditUsername] = useState('');
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  
+  // State & Ref untuk Foto Profil
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -29,10 +33,11 @@ const Sidebar = ({ isOpen, onClose }) => {
         : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200'
     }`;
 
-  // Reset form saat modal profile dibuka, dengan safety check
+  // Reset form saat modal profile dibuka
   useEffect(() => {
     if (user && isProfileModalOpen) {
       setEditUsername(user.username || '');
+      setAvatarPreview(user.avatar || null);
     }
   }, [user, isProfileModalOpen]);
 
@@ -44,9 +49,26 @@ const Sidebar = ({ isOpen, onClose }) => {
     return '?';
   };
 
-  // Helper untuk mendapatkan username dengan aman
   const getUsername = () => {
     return (user && user.username) ? user.username : 'Anonymous';
+  };
+
+  // Handler Ganti Foto (Preview Local)
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validasi ukuran (misal max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("Image size too large (max 2MB)");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleNewAssignmentClick = () => {
@@ -77,7 +99,11 @@ const Sidebar = ({ isOpen, onClose }) => {
     setIsEditingProfile(true);
     try {
       if (updateUser) {
-        updateUser({ username: editUsername });
+        // Simpan username DAN avatar (base64 string) ke context/local storage
+        updateUser({ 
+          username: editUsername,
+          avatar: avatarPreview 
+        });
         toast.success("Profile updated successfully!");
         setIsProfileModalOpen(false);
       } else {
@@ -123,6 +149,35 @@ const Sidebar = ({ isOpen, onClose }) => {
       if(window.innerWidth < 768) onClose();
   };
 
+  // --- COMPONENT AVATAR REUSABLE (Agar konsisten antara sidebar & modal) ---
+  const UserAvatar = ({ size = "sm", src, alt, initial }) => {
+    const sizeClasses = size === "lg" ? "w-28 h-28 text-5xl" : "w-10 h-10 text-lg";
+    const dotClasses = size === "lg" 
+      ? "w-6 h-6 border-4 right-1 bottom-1" 
+      : "w-2.5 h-2.5 border-2 right-0 bottom-0";
+
+    return (
+      <div className={`relative ${sizeClasses} rounded-full flex-shrink-0`}>
+        {src ? (
+          <img 
+            src={src} 
+            alt={alt} 
+            className="w-full h-full rounded-full object-cover border border-gray-200 dark:border-gray-600 shadow-sm"
+          />
+        ) : (
+          <div className={`w-full h-full rounded-full flex items-center justify-center font-bold shadow-sm ${user ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
+            {initial}
+          </div>
+        )}
+        
+        {/* GREEN ONLINE DOT */}
+        {user && (
+          <span className={`absolute ${dotClasses} bg-green-500 border-white dark:border-gray-800 rounded-full z-10`}></span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
       {/* Mobile Overlay */}
@@ -147,9 +202,15 @@ const Sidebar = ({ isOpen, onClose }) => {
             onClick={handleProfileClick}
             className="flex items-center mb-6 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 transition-all duration-300 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-700 group"
           >
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-3 shadow-sm transition-transform group-hover:scale-105 ${user ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
-              {getUserInitial()}
+            {/* Sidebar Avatar */}
+            <div className="mr-3 transition-transform group-hover:scale-105">
+              <UserAvatar 
+                size="sm" 
+                src={user?.avatar} 
+                initial={getUserInitial()} 
+              />
             </div>
+
             <div className="overflow-hidden flex-1">
               <div className="flex justify-between items-center">
                 <p className="font-semibold text-gray-800 dark:text-gray-200 truncate text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
@@ -158,7 +219,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 {user && <i className="fas fa-pen text-[10px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>}
               </div>
               <div className="flex items-center mt-0.5">
-                <span className={`w-2 h-2 rounded-full mr-1.5 ${user ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                {/* Text Online Status */}
                 <p className="text-xs text-gray-500 dark:text-gray-400">{user ? 'Online' : 'Guest Mode'}</p>
               </div>
             </div>
@@ -240,10 +301,31 @@ const Sidebar = ({ isOpen, onClose }) => {
       {/* Profile Modal */}
       <Modal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} title="User Profile">
         <div className="flex flex-col items-center">
-          {/* Avatar Besar */}
-          <div className="w-24 h-24 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center text-4xl font-bold mb-6 shadow-lg">
-             {getUserInitial()}
+          
+          {/* Avatar Besar di Modal (Clickable) */}
+          <div className="mb-6 relative group cursor-pointer" onClick={() => fileInputRef.current.click()}>
+             <UserAvatar 
+                size="lg" 
+                src={avatarPreview} 
+                initial={getUserInitial()} 
+             />
+             
+             {/* Overlay Hover Icon Kamera */}
+             <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <i className="fas fa-camera text-white text-2xl"></i>
+             </div>
+             
+             {/* Input File Hidden */}
+             <input 
+               type="file" 
+               ref={fileInputRef} 
+               onChange={handleImageChange} 
+               accept="image/*"
+               className="hidden" 
+             />
           </div>
+          
+          <p className="text-sm text-gray-500 mb-6">Click avatar to change photo</p>
 
           <form onSubmit={handleUpdateProfile} className="w-full space-y-4">
             <div>
