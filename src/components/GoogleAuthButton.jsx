@@ -8,25 +8,24 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // LOGIC UPDATE: Deteksi URL API yang lebih aman
+  // LOGIC UPDATE: Deteksi URL API
   const getApiUrl = () => {
      const envApiUrl = import.meta.env.VITE_API_URL;
      const hostname = window.location.hostname;
      const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
 
-     // 1. Jika di Localhost, prioritaskan ENV atau default ke port 3000
+     // 1. Jika di Localhost
      if (isLocalhost) {
          return envApiUrl || 'http://localhost:3000';
      }
 
-     // 2. Jika di Production (Vercel/Online)
-     // HATI-HATI: Jika envApiUrl isinya "localhost", kita abaikan agar tidak error Mixed Content
+     // 2. Jika di Production (Vercel)
+     // Jika envApiUrl ada dan valid (bukan localhost), pakai itu.
      if (envApiUrl && !envApiUrl.includes('localhost')) {
          return envApiUrl;
      }
 
-     // 3. Default Production: Gunakan Relative Path kosong ('')
-     // Ini akan memanfaatkan proxy rewrites di vercel.json
+     // 3. Default: Relative Path (menggunakan Proxy Vercel)
      return ''; 
   };
 
@@ -36,41 +35,58 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
       try {
         const accessToken = tokenResponse.access_token;
         
-        // 1. Get User Info from Google
-        const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        // --- STEP 1: Get User Info from Google ---
+        let userInfo;
+        try {
+            const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+              headers: { Authorization: `Bearer ${accessToken}` },
+            });
+            
+            if (!userInfoResponse.ok) {
+                throw new Error(`Status ${userInfoResponse.status}`);
+            }
+            userInfo = await userInfoResponse.json();
+        } catch (googleErr) {
+            console.error("Step 1 (Google Profile) Failed:", googleErr);
+            throw new Error(`Google Profile Error: ${googleErr.message}`);
+        }
         
-        if (!userInfoResponse.ok) throw new Error("Failed to get user info from Google");
-        const userInfo = await userInfoResponse.json();
-        
-        // 2. Send to Backend
+        // --- STEP 2: Send to Backend ---
         const apiUrl = getApiUrl();
-        const targetUrl = `${apiUrl}/api/auth/google`;
+        // Hapus slash di akhir jika ada, untuk menghindari double slash //api
+        const cleanApiUrl = apiUrl.replace(/\/$/, ''); 
+        const targetUrl = `${cleanApiUrl}/api/auth/google`;
         
         toast.loading("Connecting to server...", { id: toastId });
-        console.log("Sending data to:", targetUrl);
+        console.log("Attempting Backend Login to:", targetUrl);
 
-        const response = await fetch(targetUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            token: accessToken,
-            googleUser: userInfo
-          }),
-        });
+        let response;
+        try {
+             response = await fetch(targetUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ 
+                token: accessToken,
+                googleUser: userInfo
+              }),
+            });
+        } catch (networkErr) {
+            console.error("Step 2 (Backend Fetch) Failed:", networkErr);
+            throw new Error(`Backend Connection Error: ${networkErr.message}. Check URL/Internet.`);
+        }
 
-        // Handle Non-JSON Responses (misal 404 HTML page dari Vercel/Backend)
+        // Handle Response Content
         const contentType = response.headers.get("content-type");
         let data;
         if (contentType && contentType.indexOf("application/json") !== -1) {
             data = await response.json();
         } else {
             const text = await response.text();
-            console.error("Non-JSON response:", text);
-            throw new Error(`Server Error (${response.status}): ${response.statusText}`);
+            console.error("Non-JSON response from backend:", text);
+            // Jika response HTML (biasanya 404/500 dari Vercel/Railway), berikan error yang jelas
+            throw new Error(`Server Error (${response.status}): Endpoint not found or Server Error.`);
         }
 
         if (!response.ok) {
@@ -83,11 +99,11 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
         navigate('/dashboard');
 
       } catch (err) {
-        console.error("Google Auth Detailed Error:", err);
-        // Tampilkan pesan error spesifik ke user
-        toast.error(`Auth Failed: ${err.message}`, { 
+        console.error("Google Auth Final Catch:", err);
+        // Tampilkan pesan error yang sudah kita format di atas
+        toast.error(err.message, { 
             id: toastId,
-            duration: 5000 
+            duration: 6000 
         });
       }
     },
