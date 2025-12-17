@@ -8,20 +8,31 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // LOGIC UPDATE: Deteksi URL API secara otomatis
+  // LOGIC UPDATE: Deteksi URL API yang lebih aman
   const getApiUrl = () => {
-     if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
-     
-     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-         return 'http://localhost:3000';
+     const envApiUrl = import.meta.env.VITE_API_URL;
+     const hostname = window.location.hostname;
+     const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+
+     // 1. Jika di Localhost, prioritaskan ENV atau default ke port 3000
+     if (isLocalhost) {
+         return envApiUrl || 'http://localhost:3000';
      }
-     
+
+     // 2. Jika di Production (Vercel/Online)
+     // HATI-HATI: Jika envApiUrl isinya "localhost", kita abaikan agar tidak error Mixed Content
+     if (envApiUrl && !envApiUrl.includes('localhost')) {
+         return envApiUrl;
+     }
+
+     // 3. Default Production: Gunakan Relative Path kosong ('')
+     // Ini akan memanfaatkan proxy rewrites di vercel.json
      return ''; 
   };
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      const toastId = toast.loading("Authenticating with Google...");
+      const toastId = toast.loading("Verifying with Google...");
       try {
         const accessToken = tokenResponse.access_token;
         
@@ -29,13 +40,18 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
         const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
+        
+        if (!userInfoResponse.ok) throw new Error("Failed to get user info from Google");
         const userInfo = await userInfoResponse.json();
         
         // 2. Send to Backend
         const apiUrl = getApiUrl();
-        console.log("Sending Google Auth to:", `${apiUrl}/api/auth/google`);
+        const targetUrl = `${apiUrl}/api/auth/google`;
+        
+        toast.loading("Connecting to server...", { id: toastId });
+        console.log("Sending data to:", targetUrl);
 
-        const response = await fetch(`${apiUrl}/api/auth/google`, {
+        const response = await fetch(targetUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -46,10 +62,19 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
           }),
         });
 
-        const data = await response.json();
+        // Handle Non-JSON Responses (misal 404 HTML page dari Vercel/Backend)
+        const contentType = response.headers.get("content-type");
+        let data;
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            data = await response.json();
+        } else {
+            const text = await response.text();
+            console.error("Non-JSON response:", text);
+            throw new Error(`Server Error (${response.status}): ${response.statusText}`);
+        }
 
         if (!response.ok) {
-          throw new Error(data.message || 'Google auth failed');
+          throw new Error(data.message || data.error || `Login failed with status ${response.status}`);
         }
 
         console.log("Google Auth success:", data);
@@ -58,31 +83,27 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
         navigate('/dashboard');
 
       } catch (err) {
-        console.error("Google Auth Error:", err);
-        toast.error("Google Authentication Failed", { id: toastId });
+        console.error("Google Auth Detailed Error:", err);
+        // Tampilkan pesan error spesifik ke user
+        toast.error(`Auth Failed: ${err.message}`, { 
+            id: toastId,
+            duration: 5000 
+        });
       }
     },
-    onError: () => {
-      console.log('Google Login Failed');
-      toast.error("Google Login Failed");
+    onError: (errorResponse) => {
+      console.error('Google Login onError:', errorResponse);
+      toast.error("Google Popup Closed or Failed");
     },
     flow: 'implicit' 
   });
 
   const handleClick = () => {
-    // Debugging Logs untuk membantu user melihat masalah Origin
-    console.log("Current Window Origin:", window.location.origin);
-    console.log("Checking Google Client ID Configuration...");
-
     const rawClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
     const clientId = rawClientId.replace(/['"]/g, '').trim();
     
     if (!clientId || clientId === "dummy_client_id_for_init_only" || clientId === "") {
-        toast.error("Google Client ID belum dikonfigurasi", {
-            duration: 4000,
-            icon: '⚠️'
-        });
-        console.warn("VITE_GOOGLE_CLIENT_ID is missing or invalid.");
+        toast.error("Config Error: Missing Google Client ID", { duration: 4000 });
         return;
     }
     
