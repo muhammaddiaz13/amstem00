@@ -10,11 +10,9 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
 
   const getApiUrl = () => {
      const hostname = window.location.hostname;
-     // Localhost: Gunakan Env var atau default
      if (hostname === 'localhost' || hostname === '127.0.0.1') {
          return import.meta.env.VITE_API_URL || 'http://localhost:3000';
      }
-     // Production (Vercel): Gunakan relative path untuk memicu Proxy
      return ''; 
   };
 
@@ -23,7 +21,8 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
       const toastId = toast.loading("Verifying Google account...");
       try {
         const accessToken = tokenResponse.access_token;
-        
+        console.log("Access Token received");
+
         // --- STEP 1: Get User Info from Google ---
         let userInfo;
         try {
@@ -32,6 +31,7 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
             });
             if (!userInfoResponse.ok) throw new Error(`Google Profile: ${userInfoResponse.status}`);
             userInfo = await userInfoResponse.json();
+            console.log("Google User Info:", userInfo);
         } catch (googleErr) {
             console.error("Google Profile Error:", googleErr);
             throw new Error(`Failed to get Google Profile: ${googleErr.message}`);
@@ -42,7 +42,7 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
         const baseUrl = apiUrl ? apiUrl.replace(/\/$/, '') : '';
         const targetUrl = `${baseUrl}/api/auth/google`;
         
-        console.log("Sending data to:", targetUrl);
+        console.log("Sending data to Backend:", targetUrl);
 
         let response;
         try {
@@ -52,21 +52,41 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
               },
-              // Payload: Kirim data terstruktur DAN data flat untuk kompatibilitas
+              // Payload: KITCHEN SINK APPROACH
+              // Mengirim semua kemungkinan field yang mungkin dicari oleh backend
               body: JSON.stringify({ 
+                // Token variations
                 token: accessToken,
+                access_token: accessToken,
+                idToken: accessToken, // Fallback attempt
+                
+                // Nested object
                 googleUser: userInfo,
-                // Fallback fields: Beberapa backend mencari field ini langsung di root
+                user: userInfo,
+                
+                // Flat fields (Common in simple backends)
                 email: userInfo.email,
                 name: userInfo.name,
-                username: userInfo.name,
+                username: userInfo.name, // Fallback for username
                 picture: userInfo.picture,
-                avatar: userInfo.picture
+                avatar: userInfo.picture,
+                
+                // ID variations
+                googleId: userInfo.sub,
+                id: userInfo.sub,
+                sub: userInfo.sub,
+                
+                // Name parts
+                firstName: userInfo.given_name,
+                lastName: userInfo.family_name,
+                
+                // Meta
+                isRegister: isRegister
               }),
             });
         } catch (networkErr) {
             console.error("Network Error:", networkErr);
-            throw new Error(`Network Error: Is the backend running? (${networkErr.message})`);
+            throw new Error(`Network Error: ${networkErr.message}`);
         }
 
         // Handle Response Content
@@ -78,13 +98,13 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
             data = await response.json();
         } else {
             rawText = await response.text();
-            console.error("Non-JSON response:", rawText);
+            console.error("Non-JSON response body:", rawText);
         }
 
         if (!response.ok) {
-          // Buat pesan error detail untuk debugging user
-          const errorMsg = data?.message || data?.error || rawText.slice(0, 100) || `Status ${response.status}`;
-          throw new Error(`Server Error: ${errorMsg}`);
+          const errorMsg = data?.message || data?.error || rawText.slice(0, 50) || `Status ${response.status}`;
+          console.error("Backend Error Response:", data || rawText);
+          throw new Error(errorMsg);
         }
 
         if (!data) {
@@ -98,15 +118,16 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
 
       } catch (err) {
         console.error("Login Flow Error:", err);
-        toast.error(err.message, { 
+        // Tampilkan pesan error apa adanya dari backend
+        toast.error(`${err.message}`, { 
             id: toastId,
-            duration: 8000 // Durasi lebih lama agar pesan error terbaca
+            duration: 6000 
         });
       }
     },
     onError: (errorResponse) => {
       console.error('Google Login onError:', errorResponse);
-      toast.error("Google Popup Failed");
+      toast.error("Google Login Popup Failed");
     },
     flow: 'implicit' 
   });
