@@ -1,30 +1,34 @@
 import React from 'react';
 import { toast } from 'react-hot-toast';
+import { createPortal } from 'react-dom';
 
-export const ConfirmToast = (message, onConfirm) => {
-  // 1. Deteksi konteks pesan (apakah untuk delete atau logout)
+// Komponen internal untuk konten toast agar bisa menggunakan Portal
+const ConfirmToastContent = ({ t, message, onConfirm }) => {
+  // 1. Deteksi konteks pesan
   const lowerMsg = message.toLowerCase();
   const isDelete = lowerMsg.includes('delete');
   const isLogout = lowerMsg.includes('logout');
   
-  // 2. Konfigurasi tampilan dinamis
+  // 2. Konfigurasi tampilan
   const config = {
     title: isLogout ? 'Confirm Logout' : (isDelete ? 'Delete Task' : 'Confirm Action'),
     confirmBtnText: isLogout ? 'Yes, Logout' : (isDelete ? 'Yes, Delete' : 'Yes, Confirm'),
     icon: isLogout ? 'fa-sign-out-alt' : (isDelete ? 'fa-trash-alt' : 'fa-question'),
-    // Merah untuk aksi destruktif (delete/logout), Biru untuk umum
     iconBg: (isDelete || isLogout) ? 'bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400' : 'bg-blue-50 dark:bg-blue-900/30 text-blue-500 dark:text-blue-400',
     confirmBtnClass: (isDelete || isLogout) 
       ? 'bg-red-600 hover:bg-red-700 shadow-red-200 dark:shadow-none' 
       : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200 dark:shadow-none'
   };
 
-  toast(
-    (t) => (
+  // Gunakan Portal untuk merender di luar hierarki DOM normal (ke body)
+  // Ini mencegah masalah z-index, overflow, atau transform dari parent (seperti animasi fade-in Dashboard)
+  // Class 'fixed inset-0' memastikan overlay memenuhi seluruh layar viewport
+  return createPortal(
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm w-screen h-screen transition-opacity duration-300">
       <div 
         className={`${
           t.visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-        } transform transition-all duration-200 pointer-events-auto flex flex-col items-center p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 max-w-sm w-full mx-auto relative z-[9999]`}
+        } transform transition-all duration-200 pointer-events-auto flex flex-col items-center p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 max-w-sm w-full mx-4 relative`}
       >
         <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 ${config.iconBg}`}>
             <i className={`fas ${config.icon} text-xl`}></i>
@@ -56,13 +60,23 @@ export const ConfirmToast = (message, onConfirm) => {
           </button>
         </div>
       </div>
-    ),
+    </div>,
+    document.body
+  );
+};
+
+export const ConfirmToast = (message, onConfirm) => {
+  toast(
+    (t) => <ConfirmToastContent t={t} message={message} onConfirm={onConfirm} />,
     {
-      duration: Infinity, // Toast tidak akan hilang sampai diklik
+      duration: Infinity,
       position: 'top-center',
       style: {
         background: 'transparent',
         boxShadow: 'none',
+        padding: 0,
+        margin: 0,
+        maxWidth: '100%'
       },
     }
   );
