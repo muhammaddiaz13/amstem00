@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast'; // Import Toaster
+import { Toaster } from 'react-hot-toast'; 
+import { createPortal } from 'react-dom'; // Import createPortal
 import Sidebar from './components/Sidebar';
 import LoginRequiredModal from './components/LoginRequiredModal';
 import DashboardPage from './pages/DashboardPage';
@@ -39,15 +40,26 @@ const App = () => {
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
-      {/* Global Toaster dengan z-index sangat tinggi agar selalu floating di atas */}
-      <Toaster 
-        position="top-center" 
-        reverseOrder={false}
-        containerStyle={{
-          zIndex: 99999, // Memastikan di atas modal dan elemen fixed lainnya
-          top: 20,
-        }}
-      />
+      {createPortal(
+        <Toaster 
+          position="top-center" 
+          reverseOrder={false}
+          containerStyle={{
+            zIndex: 999999, // Layer paling atas
+            top: 40, // Jarak dari atas layar
+          }}
+          toastOptions={{
+            // Styling default untuk toast card
+            className: 'shadow-xl border border-gray-100 dark:border-gray-700',
+            style: {
+              background: '#fff',
+              color: '#333',
+              zIndex: 999999,
+            },
+          }}
+        />,
+        document.body
+      )}
 
       {/* GLOBAL HEADER / NAVBAR (Visible on ALL devices) */}
       {!isAuthPage && (
