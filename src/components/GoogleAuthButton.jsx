@@ -8,6 +8,17 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // LOGIC UPDATE: Deteksi URL API secara otomatis
+  const getApiUrl = () => {
+     if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+     
+     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+         return 'http://localhost:3000';
+     }
+     
+     return ''; 
+  };
+
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       const toastId = toast.loading("Authenticating with Google...");
@@ -21,7 +32,9 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
         const userInfo = await userInfoResponse.json();
         
         // 2. Send to Backend
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+        const apiUrl = getApiUrl();
+        console.log("Sending Google Auth to:", `${apiUrl}/api/auth/google`);
+
         const response = await fetch(`${apiUrl}/api/auth/google`, {
           method: 'POST',
           headers: {
@@ -53,16 +66,19 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
       console.log('Google Login Failed');
       toast.error("Google Login Failed");
     },
-    // Prevent flow from starting if client ID is invalid to avoid popup closed immediately
     flow: 'implicit' 
   });
 
   const handleClick = () => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    // Debugging Logs untuk membantu user melihat masalah Origin
+    console.log("Current Window Origin:", window.location.origin);
+    console.log("Checking Google Client ID Configuration...");
+
+    const rawClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+    const clientId = rawClientId.replace(/['"]/g, '').trim();
     
-    // Cek apakah Client ID ada dan bukan dummy text
-    if (!clientId || clientId === "dummy_client_id_for_init_only" || clientId.trim() === "") {
-        toast.error("Google Client ID belum dikonfigurasi di file .env", {
+    if (!clientId || clientId === "dummy_client_id_for_init_only" || clientId === "") {
+        toast.error("Google Client ID belum dikonfigurasi", {
             duration: 4000,
             icon: '⚠️'
         });
