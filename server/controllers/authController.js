@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
 
+// Client ID tetap diinisialisasi untuk keperluan lain jika ada, tapi verifikasi login kita buat lebih direct.
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 exports.register = async (req, res) => {
@@ -81,12 +82,25 @@ exports.googleLogin = async (req, res) => {
     }
 
     try {
-        const googleResponse = await client.request({
-            url: 'https://www.googleapis.com/oauth2/v3/userinfo',
+        // MENGGUNAKAN NATIVE FETCH (Node 18+) untuk verifikasi token
+        // Ini lebih aman dari masalah konfigurasi library google-auth
+        const googleResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            method: 'GET',
             headers: { Authorization: `Bearer ${token}` }
         });
 
-        const { email, name, picture } = googleResponse.data;
+        if (!googleResponse.ok) {
+            const errorData = await googleResponse.json();
+            console.error("Google API Error:", errorData);
+            throw new Error(errorData.error_description || 'Gagal validasi token ke Google');
+        }
+
+        const data = await googleResponse.json();
+        const { email, name, picture } = data;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Email tidak ditemukan dari akun Google ini.' });
+        }
 
         const userResult = await db.query('SELECT * FROM users WHERE email = $1', [email]);
         let user;
@@ -119,7 +133,8 @@ exports.googleLogin = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Google Auth Error:", error);
-        res.status(401).json({ message: 'Gagal verifikasi Google Login.' });
+        console.error("Google Auth Controller Error:", error.message);
+        // Mengirim pesan error spesifik ke frontend agar bisa dilihat di toast
+        res.status(401).json({ message: `Gagal verifikasi Google Login: ${error.message}` });
     }
 };
