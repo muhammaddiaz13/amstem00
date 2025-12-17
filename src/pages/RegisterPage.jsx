@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { authService } from '../services/authService.js';
-import { Toaster } from 'react-hot-toast';
+// Toaster removed
 import GoogleAuthButton from '../components/GoogleAuthButton';
 
 const RegisterPage = () => {
@@ -28,9 +28,17 @@ const RegisterPage = () => {
 
     try {
       console.log("Sending register data...", { username, email, password });
-      const user = await authService.register(username, email, password);
-      console.log("Register success:", user);
-      login(user);
+      const responseData = await authService.register(username, email, password);
+      console.log("Register success:", responseData);
+      
+      // PERBAIKAN: Unwrap data user dan token
+      // Pastikan data yang masuk ke context berbentuk { id, username, email, token }
+      const userToLogin = responseData.user ? {
+          ...responseData.user,
+          token: responseData.token
+      } : responseData;
+
+      login(userToLogin);
       navigate('/dashboard');
     } catch (err) {
       console.error("Register Error Full Object:", err);
@@ -57,7 +65,7 @@ const RegisterPage = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4 transition-colors duration-300">
-      <Toaster position="top-center" reverseOrder={false} />
+      
       <div className="bg-white dark:bg-gray-800 p-10 rounded-2xl shadow-xl w-full max-w-sm border border-gray-100 dark:border-gray-700 animate-[fadeIn_0.5s_ease-out] transition-colors duration-300">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">AMStem</h1>

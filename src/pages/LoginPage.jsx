@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { authService } from '../services/authService.js';
-import { Toaster } from 'react-hot-toast';
+// Toaster removed
 import GoogleAuthButton from '../components/GoogleAuthButton';
 
 const LoginPage = () => {
@@ -21,9 +21,20 @@ const LoginPage = () => {
 
     try {
       console.log("Attempting login...");
-      const user = await authService.login(email, password);
-      console.log("Login success:", user);
-      login(user);
+      // authService biasanya mengembalikan response.data yang berisi { message, token, user }
+      const responseData = await authService.login(email, password);
+      
+      console.log("Login success:", responseData);
+      
+      // PERBAIKAN: Unwrap data user dan token
+      // Jika responseData memiliki properti 'user' (nested), kita ratakan.
+      // Jika tidak (sudah flat), gunakan apa adanya.
+      const userToLogin = responseData.user ? {
+          ...responseData.user,
+          token: responseData.token
+      } : responseData;
+
+      login(userToLogin);
       navigate('/dashboard');
     } catch (err) {
       console.error("Login Error Full Object:", err);
@@ -50,7 +61,7 @@ const LoginPage = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4 transition-colors duration-300">
-      <Toaster position="top-center" reverseOrder={false} />
+      
       <div className="bg-white dark:bg-gray-800 p-10 rounded-2xl shadow-xl w-full max-w-sm border border-gray-100 dark:border-gray-700 animate-fadeIn transition-colors duration-300">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">AMStem</h1>
