@@ -4,7 +4,7 @@ import TaskCard from '../components/TaskCard.jsx';
 import Modal from '../components/Modal.jsx';
 import TaskForm from '../components/TaskForm.jsx';
 import { taskService } from '../services/taskService.js';
-import { toast } from 'react-hot-toast'; // Toaster removed, toast kept
+import { toast } from 'react-hot-toast'; 
 
 const DashboardPage = () => {
   const { user, openLoginModal } = useAuth();
