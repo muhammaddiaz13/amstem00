@@ -19,7 +19,9 @@ const DashboardPage = () => {
     // Ini mencegah data akun lama tampil sesaat (ghosting data) di akun baru
     setTasks([]); 
     
-    if (user) {
+    // Safety check: Pastikan user memiliki token sebelum fetch ke backend
+    // Jika tidak ada token (tapi user object ada karena glitch), jangan fetch
+    if (user && user.token) {
       fetchTasks();
     }
   }, [user]);

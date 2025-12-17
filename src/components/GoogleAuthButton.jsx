@@ -54,14 +54,17 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
         }
 
         // PERBAIKAN PENTING: Unwrap data user
-        // Struktur dari Backend: { message, token, user: { id, username, ... } }
-        // Kita ubah jadi flat object: { id, username, ..., token } agar AuthContext membacanya dengan benar
         const userToLogin = {
             ...data.user,
             token: data.token
         };
 
+        // SAFETY: Pastikan localStorage user benar-benar kosong sebelum mengisi yang baru
+        // Ini mencegah race condition di mana data lama masih terbaca
+        localStorage.removeItem('user');
+        
         login(userToLogin);
+        
         toast.success(isRegister ? "Account created!" : "Welcome back!", { id: toastId });
         navigate('/dashboard');
 
