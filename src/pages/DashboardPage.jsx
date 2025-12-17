@@ -15,10 +15,12 @@ const DashboardPage = () => {
 
   // Fetch tasks dari API saat komponen dimuat atau user berubah
   useEffect(() => {
+    // PENTING: Reset tasks setiap kali user berubah (baik login, logout, atau switch akun)
+    // Ini mencegah data akun lama tampil sesaat (ghosting data) di akun baru
+    setTasks([]); 
+    
     if (user) {
       fetchTasks();
-    } else {
-      setTasks([]);
     }
   }, [user]);
 
@@ -29,7 +31,7 @@ const DashboardPage = () => {
       setTasks(data);
     } catch (error) {
       console.error("Failed to fetch tasks", error);
-      toast.error("Failed to load tasks");
+      if (user) toast.error("Failed to load tasks");
     } finally {
       setIsLoading(false);
     }
@@ -46,6 +48,7 @@ const DashboardPage = () => {
   const handleAddTask = async (newTask) => {
     const toastId = toast.loading("Creating assignment...");
     try {
+      // taskService.create sudah menghandle transformasi data
       const createdTask = await taskService.create({
         ...newTask,
         taskStatus: 'Unfinished',
