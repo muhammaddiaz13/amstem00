@@ -6,6 +6,12 @@ const TeamPage = () => {
   const { user, openLoginModal } = useAuth();
   const username = user ? user.username : 'Guest';
 
+  // PERUBAHAN UTAMA: Key storage dinamis berdasarkan user ID
+  // Jika user A login -> 'taskAssignments_123'
+  // Jika user B login -> 'taskAssignments_456'
+  // Guest -> 'taskAssignments_guest'
+  const storageKey = user ? `taskAssignments_${user.id}` : 'taskAssignments_guest';
+
   const [taskAssignments, setTaskAssignments] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState(null);
@@ -14,23 +20,22 @@ const TeamPage = () => {
   const [priorityFilter, setPriorityFilter] = useState('all');
 
   useEffect(() => {
-    const savedAssignments = JSON.parse(localStorage.getItem('taskAssignments'));
+    // Load data menggunakan Dynamic Key
+    const savedAssignments = JSON.parse(localStorage.getItem(storageKey));
     
     if (savedAssignments) {
-      // Filter out the specific dummy data (ID '1') that might persist in users' local storage
       const cleanedAssignments = savedAssignments.filter(task => task.id !== '1');
-      
       setTaskAssignments(cleanedAssignments);
-      
-      // Update local storage if we removed the dummy data
-      if (cleanedAssignments.length !== savedAssignments.length) {
-        localStorage.setItem('taskAssignments', JSON.stringify(cleanedAssignments));
-      }
     } else {
       setTaskAssignments([]);
-      localStorage.setItem('taskAssignments', JSON.stringify([]));
+      // Jangan timpa jika storage kosong, biarkan null atau inisialisasi di memori saja
     }
-  }, []);
+  }, [storageKey]); // Re-run saat user berubah (storageKey berubah)
+
+  // Helper untuk save
+  const saveToStorage = (data) => {
+    localStorage.setItem(storageKey, JSON.stringify(data));
+  };
 
   const filteredAssignments = taskAssignments.filter(assignment => {
     const matchesSearch = assignment.taskName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -69,26 +74,24 @@ const TeamPage = () => {
     }
 
     setTaskAssignments(updatedAssignments);
-    localStorage.setItem('taskAssignments', JSON.stringify(updatedAssignments));
+    saveToStorage(updatedAssignments); // Gunakan fungsi helper
     setShowModal(false);
     setEditingAssignment(null);
   };
 
-  
   const handleDeleteAssignment = (assignmentId) => {
     if (window.confirm('Are you sure you want to delete this assignment?')) {
       const updatedAssignments = taskAssignments.filter(a => a.id !== assignmentId);
       setTaskAssignments(updatedAssignments);
-      localStorage.setItem('taskAssignments', JSON.stringify(updatedAssignments));
+      saveToStorage(updatedAssignments);
     }
   };
-
   
   const handleDeleteAssigneeAssignments = (assigneeName) => {
     if (window.confirm(`Are you sure you want to delete all assignments for ${assigneeName}?`)) {
       const updatedAssignments = taskAssignments.filter(a => a.assignee !== assigneeName);
       setTaskAssignments(updatedAssignments);
-      localStorage.setItem('taskAssignments', JSON.stringify(updatedAssignments));
+      saveToStorage(updatedAssignments);
     }
   };
 
@@ -138,7 +141,6 @@ const TeamPage = () => {
       notes: ''
     });
 
-    
     useEffect(() => {
       if (assignment) {
         setFormData({
@@ -159,15 +161,16 @@ const TeamPage = () => {
         }));
       }
     }, [assignment]);
+
     const handleSubmit = (e) => {
       e.preventDefault();
-      
       if (!formData.taskName || !formData.assignee || !formData.status || !formData.priority || !formData.tag) {
         alert('Please fill all required fields!');
         return;
       }
       onSave(formData);
     };
+
     const handleChange = (e) => {
       const { name, value } = e.target;
       setFormData(prev => ({

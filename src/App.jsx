@@ -12,11 +12,15 @@ import CategoryPage from './pages/CategoryPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProgressPage from './pages/ProgressPage';
+import { useAuth } from './contexts/AuthContext'; // Pastikan import ini ada
 
 const App = () => {
   // State untuk sidebar. Default: Desktop (Buka), Mobile (Tutup)
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
   const location = useLocation();
+  
+  // AMBIL USER DARI CONTEXT
+  const { user } = useAuth(); 
 
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
@@ -104,7 +108,12 @@ const App = () => {
             ${!isAuthPage && isSidebarOpen ? 'md:ml-64' : 'md:ml-0'} 
           `}
         >
-          <Routes>
+          {/* 
+            KEY PROP PENTING:
+            Menggunakan user.id sebagai key memaksa React me-remount seluruh halaman saat user berubah.
+            Ini membersihkan state lama yang nyangkut.
+          */}
+          <Routes key={user ? user.id : 'guest'}>
             <Route path="/" element={<Navigate to="/dashboard" />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
