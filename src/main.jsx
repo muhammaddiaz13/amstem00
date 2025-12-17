@@ -10,13 +10,14 @@ import './index.css';
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Failed to find the root element');
 
-// Mengambil Client ID dari file .env
-// Jika kosong, gunakan dummy string untuk mencegah GoogleOAuthProvider crash saat inisialisasi.
-// Komponen GoogleAuthButton di dalam App akan mencegah penggunaan hook jika ID ini adalah dummy/kosong.
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "dummy_client_id_for_init_only";
+// Mengambil Client ID dan membersihkannya dari tanda kutip atau spasi berlebih
+const rawClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+const GOOGLE_CLIENT_ID = rawClientId.replace(/['"]/g, '').trim() || "dummy_client_id_for_init_only";
 
-if (!import.meta.env.VITE_GOOGLE_CLIENT_ID) {
-  console.warn("⚠️ Google Client ID belum dipasang di file .env. Tombol Login Google akan disembunyikan otomatis.");
+if (!rawClientId || GOOGLE_CLIENT_ID === "dummy_client_id_for_init_only") {
+  console.warn("⚠️ Google Client ID belum dipasang dengan benar di file .env atau Environment Variables.");
+} else {
+  console.log("✅ Google Client ID Loaded");
 }
 
 const root = ReactDOM.createRoot(rootElement);
