@@ -111,10 +111,18 @@ exports.googleLogin = async (req, res) => {
             const salt = await bcrypt.genSalt(10);
             const dummyPassword = await bcrypt.hash(Math.random().toString(36) + 'google-auth' + Date.now(), salt);
 
+            // PERBAIKAN: Generate Unique Username
+            // Menghindari error "duplicate key" jika nama Google sama dengan user yang sudah ada.
+            // Logic: Hapus spasi dari nama + tambah 4 angka random. 
+            // Contoh: "John Doe" -> "JohnDoe4821"
+            const cleanName = name.replace(/\s+/g, ''); 
+            const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+            const uniqueUsername = `${cleanName}${randomSuffix}`;
+
             // TIDAK MENAMBAH KOLOM AVATAR KE DATABASE UNTUK MENJAGA STRUKTUR
             const newUser = await db.query(
                 'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *',
-                [name, email, dummyPassword]
+                [uniqueUsername, email, dummyPassword]
             );
             user = newUser.rows[0];
         }
