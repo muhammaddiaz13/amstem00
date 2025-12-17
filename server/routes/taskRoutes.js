@@ -3,7 +3,6 @@ const router = express.Router();
 const taskController = require('../controllers/taskController');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// Semua rute di bawah ini butuh Login (Token)
 router.use(authMiddleware);
 
 router.get('/', taskController.getAllTasks);

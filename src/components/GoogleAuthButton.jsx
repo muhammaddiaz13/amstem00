@@ -21,107 +21,45 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
       const toastId = toast.loading("Verifying Google account...");
       try {
         const accessToken = tokenResponse.access_token;
-        console.log("Access Token received");
-
-        // --- STEP 1: Get User Info from Google ---
-        let userInfo;
-        try {
-            const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-              headers: { Authorization: `Bearer ${accessToken}` },
-            });
-            if (!userInfoResponse.ok) throw new Error(`Google Profile: ${userInfoResponse.status}`);
-            userInfo = await userInfoResponse.json();
-            console.log("Google User Info:", userInfo);
-        } catch (googleErr) {
-            console.error("Google Profile Error:", googleErr);
-            throw new Error(`Failed to get Google Profile: ${googleErr.message}`);
-        }
         
-        // --- STEP 2: Send to Backend ---
         const apiUrl = getApiUrl();
         const baseUrl = apiUrl ? apiUrl.replace(/\/$/, '') : '';
         const targetUrl = `${baseUrl}/api/auth/google`;
         
-        console.log("Sending data to Backend:", targetUrl);
+        const response = await fetch(targetUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ 
+            token: accessToken
+          }),
+        });
 
-        let response;
-        try {
-             response = await fetch(targetUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              // Payload: KITCHEN SINK APPROACH
-              // Mengirim semua kemungkinan field yang mungkin dicari oleh backend
-              body: JSON.stringify({ 
-                // Token variations
-                token: accessToken,
-                access_token: accessToken,
-                idToken: accessToken, // Fallback attempt
-                
-                // Nested object
-                googleUser: userInfo,
-                user: userInfo,
-                
-                // Flat fields (Common in simple backends)
-                email: userInfo.email,
-                name: userInfo.name,
-                username: userInfo.name, // Fallback for username
-                picture: userInfo.picture,
-                avatar: userInfo.picture,
-                
-                // ID variations
-                googleId: userInfo.sub,
-                id: userInfo.sub,
-                sub: userInfo.sub,
-                
-                // Name parts
-                firstName: userInfo.given_name,
-                lastName: userInfo.family_name,
-                
-                // Meta
-                isRegister: isRegister
-              }),
-            });
-        } catch (networkErr) {
-            console.error("Network Error:", networkErr);
-            throw new Error(`Network Error: ${networkErr.message}`);
-        }
-
-        // Handle Response Content
         const contentType = response.headers.get("content-type");
         let data;
-        let rawText = "";
 
         if (contentType && contentType.includes("application/json")) {
             data = await response.json();
         } else {
-            rawText = await response.text();
-            console.error("Non-JSON response body:", rawText);
+            const rawText = await response.text();
+            throw new Error(rawText || `Server error: ${response.status}`);
         }
 
         if (!response.ok) {
-          const errorMsg = data?.message || data?.error || rawText.slice(0, 50) || `Status ${response.status}`;
-          console.error("Backend Error Response:", data || rawText);
-          throw new Error(errorMsg);
+          throw new Error(data?.message || "Login failed");
         }
 
-        if (!data) {
-             throw new Error("Empty response from server");
-        }
-
-        console.log("Google Auth success:", data);
         login(data);
         toast.success(isRegister ? "Account created!" : "Welcome back!", { id: toastId });
         navigate('/dashboard');
 
       } catch (err) {
         console.error("Login Flow Error:", err);
-        // Tampilkan pesan error apa adanya dari backend
         toast.error(`${err.message}`, { 
             id: toastId,
-            duration: 6000 
+            duration: 5000 
         });
       }
     },

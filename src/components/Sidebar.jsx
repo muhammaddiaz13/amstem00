@@ -49,6 +49,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     return '?';
   };
 
+  // Helper untuk mendapatkan username dengan aman
   const getUsername = () => {
     return (user && user.username) ? user.username : 'Anonymous';
   };
@@ -152,9 +153,10 @@ const Sidebar = ({ isOpen, onClose }) => {
   // --- COMPONENT AVATAR REUSABLE (Agar konsisten antara sidebar & modal) ---
   const UserAvatar = ({ size = "sm", src, alt, initial }) => {
     const sizeClasses = size === "lg" ? "w-28 h-28 text-5xl" : "w-10 h-10 text-lg";
+    // Dot hijau indikator online
     const dotClasses = size === "lg" 
       ? "w-6 h-6 border-4 right-1 bottom-1" 
-      : "w-2.5 h-2.5 border-2 right-0 bottom-0";
+      : "w-3 h-3 border-2 right-0 bottom-0";
 
     return (
       <div className={`relative ${sizeClasses} rounded-full flex-shrink-0`}>
@@ -170,9 +172,9 @@ const Sidebar = ({ isOpen, onClose }) => {
           </div>
         )}
         
-        {/* GREEN ONLINE DOT */}
+        {/* GREEN ONLINE DOT (Hanya muncul jika user login) */}
         {user && (
-          <span className={`absolute ${dotClasses} bg-green-500 border-white dark:border-gray-800 rounded-full z-10`}></span>
+          <span className={`absolute ${dotClasses} bg-green-500 border-white dark:border-gray-900 rounded-full z-10`}></span>
         )}
       </div>
     );
@@ -220,7 +222,16 @@ const Sidebar = ({ isOpen, onClose }) => {
               </div>
               <div className="flex items-center mt-0.5">
                 {/* Text Online Status */}
-                <p className="text-xs text-gray-500 dark:text-gray-400">{user ? 'Online' : 'Guest Mode'}</p>
+                <p className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
+                  {user ? (
+                    <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>
+                      Online
+                    </>
+                  ) : (
+                    <span className="text-gray-400">Guest Mode</span>
+                  )}
+                </p>
               </div>
             </div>
           </div>
