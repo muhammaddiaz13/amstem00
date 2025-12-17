@@ -8,24 +8,20 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // LOGIC UPDATE: Deteksi URL API
+  // LOGIC UPDATE: Strategi Proxy (Recommended)
+  // Kita memaksa menggunakan Relative Path ('') di production agar request melalui Vercel Proxy.
+  // Ini menghindari masalah CORS yang terjadi jika kita menembak URL Railway secara langsung dari browser.
   const getApiUrl = () => {
-     const envApiUrl = import.meta.env.VITE_API_URL;
      const hostname = window.location.hostname;
-     const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
-
-     // 1. Jika di Localhost
-     if (isLocalhost) {
-         return envApiUrl || 'http://localhost:3000';
+     
+     // Jika di Localhost, gunakan variable env atau default localhost
+     if (hostname === 'localhost' || hostname === '127.0.0.1') {
+         return import.meta.env.VITE_API_URL || 'http://localhost:3000';
      }
 
-     // 2. Jika di Production (Vercel)
-     // Jika envApiUrl ada dan valid (bukan localhost), pakai itu.
-     if (envApiUrl && !envApiUrl.includes('localhost')) {
-         return envApiUrl;
-     }
-
-     // 3. Default: Relative Path (menggunakan Proxy Vercel)
+     // Jika di Production (Vercel), kembalikan string kosong.
+     // Ini akan membuat fetch URL menjadi relative: "/api/auth/google"
+     // Request ini akan ditangkap oleh vercel.json dan diteruskan ke Railway.
      return ''; 
   };
 
@@ -53,9 +49,9 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
         
         // --- STEP 2: Send to Backend ---
         const apiUrl = getApiUrl();
-        // Hapus slash di akhir jika ada, untuk menghindari double slash //api
-        const cleanApiUrl = apiUrl.replace(/\/$/, ''); 
-        const targetUrl = `${cleanApiUrl}/api/auth/google`;
+        // Pastikan tidak ada double slash jika apiUrl kosong
+        const baseUrl = apiUrl ? apiUrl.replace(/\/$/, '') : '';
+        const targetUrl = `${baseUrl}/api/auth/google`;
         
         toast.loading("Connecting to server...", { id: toastId });
         console.log("Attempting Backend Login to:", targetUrl);
@@ -66,6 +62,7 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json'
               },
               body: JSON.stringify({ 
                 token: accessToken,
@@ -74,19 +71,22 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
             });
         } catch (networkErr) {
             console.error("Step 2 (Backend Fetch) Failed:", networkErr);
-            throw new Error(`Backend Connection Error: ${networkErr.message}. Check URL/Internet.`);
+            // Jika proxy gagal (misal 504 Gateway Timeout), fetch akan throw error atau return status error.
+            // Jika fetch throw error "Failed to fetch" di relative path, biasanya koneksi internet user putus
+            // atau Vercel down total.
+            throw new Error(`Connection Error: ${networkErr.message}.`);
         }
 
         // Handle Response Content
         const contentType = response.headers.get("content-type");
         let data;
-        if (contentType && contentType.indexOf("application/json") !== -1) {
+        if (contentType && contentType.includes("application/json")) {
             data = await response.json();
         } else {
             const text = await response.text();
             console.error("Non-JSON response from backend:", text);
-            // Jika response HTML (biasanya 404/500 dari Vercel/Railway), berikan error yang jelas
-            throw new Error(`Server Error (${response.status}): Endpoint not found or Server Error.`);
+            // Respons HTML biasanya indikasi 404/500 dari Vercel/Railway
+            throw new Error(`Server Error (${response.status}): The server returned an unexpected response.`);
         }
 
         if (!response.ok) {
@@ -100,7 +100,6 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
 
       } catch (err) {
         console.error("Google Auth Final Catch:", err);
-        // Tampilkan pesan error yang sudah kita format di atas
         toast.error(err.message, { 
             id: toastId,
             duration: 6000 
