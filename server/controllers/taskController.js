@@ -2,7 +2,6 @@ const db = require('../db');
 
 exports.getAllTasks = async (req, res) => {
     try {
-        // Ambil tasks HANYA milik user yang sedang login
         const result = await db.query('SELECT * FROM tasks WHERE user_id = $1 ORDER BY created_at DESC', [req.user.id]);
         res.json(result.rows);
     } catch (error) {
