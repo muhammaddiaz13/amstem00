@@ -17,6 +17,7 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
   };
 
   const googleLogin = useGoogleLogin({
+    scope: 'email profile openid', // Explicit scope
     onSuccess: async (tokenResponse) => {
       const toastId = toast.loading("Verifying Google account...");
       try {
@@ -44,7 +45,8 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
             data = await response.json();
         } else {
             const rawText = await response.text();
-            throw new Error(rawText || `Server error: ${response.status}`);
+            console.error("Non-JSON Response:", rawText);
+            throw new Error(`Server Error: ${response.status}`);
         }
 
         if (!response.ok) {
@@ -57,6 +59,7 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
 
       } catch (err) {
         console.error("Login Flow Error:", err);
+        // Tampilkan pesan error yang lebih spesifik dari backend
         toast.error(`${err.message}`, { 
             id: toastId,
             duration: 5000 
