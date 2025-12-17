@@ -17,7 +17,7 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
   };
 
   const googleLogin = useGoogleLogin({
-    scope: 'email profile openid', // Explicit scope
+    scope: 'email profile openid', // Explicit scope untuk memastikan data profile terambil
     onSuccess: async (tokenResponse) => {
       const toastId = toast.loading("Verifying Google account...");
       try {
@@ -53,7 +53,15 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
           throw new Error(data?.message || "Login failed");
         }
 
-        login(data);
+        // PERBAIKAN PENTING: Unwrap data user
+        // Struktur dari Backend: { message, token, user: { id, username, ... } }
+        // Kita ubah jadi flat object: { id, username, ..., token } agar AuthContext membacanya dengan benar
+        const userToLogin = {
+            ...data.user,
+            token: data.token
+        };
+
+        login(userToLogin);
         toast.success(isRegister ? "Account created!" : "Welcome back!", { id: toastId });
         navigate('/dashboard');
 
