@@ -8,25 +8,18 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // LOGIC UPDATE: Deteksi URL API
+  // LOGIC UPDATE: Gunakan Direct URL untuk Production agar lebih stabil
   const getApiUrl = () => {
-     const envApiUrl = import.meta.env.VITE_API_URL;
      const hostname = window.location.hostname;
      const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
 
-     // 1. Jika di Localhost
      if (isLocalhost) {
-         return envApiUrl || 'http://localhost:3000';
+         return import.meta.env.VITE_API_URL || 'http://localhost:3000';
      }
 
-     // 2. Jika di Production (Vercel)
-     // Jika envApiUrl ada dan valid (bukan localhost), pakai itu.
-     if (envApiUrl && !envApiUrl.includes('localhost')) {
-         return envApiUrl;
-     }
-
-     // 3. Default: Relative Path (menggunakan Proxy Vercel)
-     return ''; 
+     // DIRECT URL ke Railway (Bypass Vercel Proxy untuk debugging koneksi)
+     // Pastikan backend Anda sudah mengaktifkan CORS untuk 'https://amstem.vercel.app'
+     return 'https://amstem00-production.up.railway.app';
   };
 
   const googleLogin = useGoogleLogin({
@@ -53,7 +46,6 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
         
         // --- STEP 2: Send to Backend ---
         const apiUrl = getApiUrl();
-        // Hapus slash di akhir jika ada, untuk menghindari double slash //api
         const cleanApiUrl = apiUrl.replace(/\/$/, ''); 
         const targetUrl = `${cleanApiUrl}/api/auth/google`;
         
@@ -66,6 +58,8 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
+                // Tambahkan header ini untuk memastikan backend tahu ini request dari mana (opsional)
+                'Accept': 'application/json'
               },
               body: JSON.stringify({ 
                 token: accessToken,
@@ -74,19 +68,19 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
             });
         } catch (networkErr) {
             console.error("Step 2 (Backend Fetch) Failed:", networkErr);
-            throw new Error(`Backend Connection Error: ${networkErr.message}. Check URL/Internet.`);
+            // Hint spesifik untuk CORS jika fetch gagal di direct URL
+            throw new Error(`Connection Failed. Possible CORS issue or Backend Down.`);
         }
 
         // Handle Response Content
         const contentType = response.headers.get("content-type");
         let data;
-        if (contentType && contentType.indexOf("application/json") !== -1) {
+        if (contentType && contentType.includes("application/json")) {
             data = await response.json();
         } else {
             const text = await response.text();
             console.error("Non-JSON response from backend:", text);
-            // Jika response HTML (biasanya 404/500 dari Vercel/Railway), berikan error yang jelas
-            throw new Error(`Server Error (${response.status}): Endpoint not found or Server Error.`);
+            throw new Error(`Server Error (${response.status}): Endpoint returned non-JSON.`);
         }
 
         if (!response.ok) {
@@ -100,7 +94,6 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
 
       } catch (err) {
         console.error("Google Auth Final Catch:", err);
-        // Tampilkan pesan error yang sudah kita format di atas
         toast.error(err.message, { 
             id: toastId,
             duration: 6000 
