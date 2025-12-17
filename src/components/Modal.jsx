@@ -24,7 +24,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
         </div>
       </div>
     </div>,
-    document.body // Target render: Body
+    document.body // Target render dipindahkan ke Body agar lepas dari container Dashboard
   );
 };
 

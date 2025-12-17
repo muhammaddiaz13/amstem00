@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast'; // Import Toaster
 import Sidebar from './components/Sidebar';
 import LoginRequiredModal from './components/LoginRequiredModal';
 import DashboardPage from './pages/DashboardPage';
@@ -38,7 +39,16 @@ const App = () => {
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
-      
+      {/* Global Toaster dengan z-index sangat tinggi agar selalu floating di atas */}
+      <Toaster 
+        position="top-center" 
+        reverseOrder={false}
+        containerStyle={{
+          zIndex: 99999, // Memastikan di atas modal dan elemen fixed lainnya
+          top: 20,
+        }}
+      />
+
       {/* GLOBAL HEADER / NAVBAR (Visible on ALL devices) */}
       {!isAuthPage && (
         <div className="fixed top-0 left-0 w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 z-40 px-4 h-16 flex items-center justify-between shadow-sm transition-colors duration-300">
