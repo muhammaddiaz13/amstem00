@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { authService } from '../services/authService.js';
@@ -11,9 +11,15 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
   
+  // PENTING: Force logout saat masuk halaman login
+  // Ini mencegah data akun A 'terbawa' saat login ke akun B
+  useEffect(() => {
+    logout();
+  }, []); // Run sekali saat mount
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -27,8 +33,6 @@ const LoginPage = () => {
       console.log("Login success:", responseData);
       
       // PERBAIKAN: Unwrap data user dan token
-      // Jika responseData memiliki properti 'user' (nested), kita ratakan.
-      // Jika tidak (sudah flat), gunakan apa adanya.
       const userToLogin = responseData.user ? {
           ...responseData.user,
           token: responseData.token
