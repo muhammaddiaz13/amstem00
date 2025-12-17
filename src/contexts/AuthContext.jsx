@@ -35,17 +35,20 @@ export const AuthProvider = ({ children }) => {
     // 1. Kosongkan state user di memori
     setUser(null);
     
-    // 2. Hapus data sesi user utama
-    localStorage.removeItem('user');
+    // 2. NUCLEAR OPTION: Hapus SEMUA data di localStorage
+    // Kita simpan dulu preference theme agar user tidak kaget theme berubah
+    const savedTheme = localStorage.getItem('theme');
     
-    // 3. PENTING: Bersihkan 'sampah' data lokal lain (seperti Team Assignments)
-    // agar tidak bocor ke akun berikutnya yang login di browser yang sama
-    Object.keys(localStorage).forEach((key) => {
-        // Hapus key yang berhubungan dengan assignment team (baik guest maupun user ID tertentu)
-        if (key.startsWith('taskAssignments')) {
-            localStorage.removeItem(key);
-        }
-    });
+    // Hapus total
+    localStorage.clear();
+    
+    // Kembalikan theme
+    if (savedTheme) {
+        localStorage.setItem('theme', savedTheme);
+    }
+    
+    // Log untuk debugging
+    console.log("Session cleared completely.");
   };
 
   // Fungsi baru untuk update data user tanpa logout
