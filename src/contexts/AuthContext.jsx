@@ -25,13 +25,27 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData) => {
-    setUser(userData);
+    // Pastikan simpan ke localStorage DULUAN sebelum update state
+    // Ini menjamin data persisten sudah ada sebelum komponen lain re-render
     localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
   };
 
   const logout = () => {
+    // 1. Kosongkan state user di memori
     setUser(null);
+    
+    // 2. Hapus data sesi user utama
     localStorage.removeItem('user');
+    
+    // 3. PENTING: Bersihkan 'sampah' data lokal lain (seperti Team Assignments)
+    // agar tidak bocor ke akun berikutnya yang login di browser yang sama
+    Object.keys(localStorage).forEach((key) => {
+        // Hapus key yang berhubungan dengan assignment team (baik guest maupun user ID tertentu)
+        if (key.startsWith('taskAssignments')) {
+            localStorage.removeItem(key);
+        }
+    });
   };
 
   // Fungsi baru untuk update data user tanpa logout
