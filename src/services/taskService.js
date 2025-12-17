@@ -28,20 +28,17 @@ const getAuthHeaders = () => {
   };
 };
 
-// --- TRANSFORMERS (Sesuai kodingan sebelumnya) ---
+// --- TRANSFORMERS ---
 
 // Mengubah format dari Backend (snake_case/db) ke Frontend (camelCase)
 const transformToFrontend = (task) => ({
   id: task.id,
-  // Handle kedua kemungkinan key agar aman
   taskTitle: task.title || task.taskTitle,
   taskDescription: task.description || task.taskDescription || '',
   taskCategory: task.category || task.taskCategory,
   taskStatus: task.status || task.taskStatus,
   priority: task.priority,
-  // Pastikan format tanggal YYYY-MM-DD
   dueDate: (task.due_date || task.dueDate || '').split('T')[0],
-  // Hitung progress otomatis berdasarkan status
   progress: (task.status === 'Finished' || task.taskStatus === 'Finished') ? 100 : 
             ((task.status === 'In Progress' || task.taskStatus === 'In Progress') ? 50 : 0),
   createdAt: task.created_at || task.createdAt
@@ -60,11 +57,14 @@ const transformToBackend = (task) => ({
 export const taskService = {
   getAll: async () => {
     const baseUrl = getApiUrl().replace(/\/$/, '');
-    const response = await fetch(`${baseUrl}/api/tasks`, {
+    
+    // CACHE BUSTING: Tambahkan timestamp agar request selalu dianggap baru
+    const timestamp = new Date().getTime();
+    
+    const response = await fetch(`${baseUrl}/api/tasks?t=${timestamp}`, {
       method: 'GET',
       headers: {
         ...getAuthHeaders(),
-        // Tambahan header anti-cache agar data akun lama tidak nyangkut
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'
@@ -73,13 +73,11 @@ export const taskService = {
     
     if (!response.ok) throw new Error('Failed to fetch tasks');
     const data = await response.json();
-    // Transform data dari backend ke format frontend
     return data.map(transformToFrontend);
   },
 
   create: async (taskData) => {
     const baseUrl = getApiUrl().replace(/\/$/, '');
-    // Transform data ke format backend sebelum dikirim
     const payload = transformToBackend(taskData);
     
     const response = await fetch(`${baseUrl}/api/tasks`, {
