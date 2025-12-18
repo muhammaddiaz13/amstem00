@@ -10,7 +10,6 @@ import './index.css';
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Failed to find the root element');
 
-// Mengambil Client ID dan membersihkannya dari tanda kutip atau spasi berlebih
 const rawClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 const GOOGLE_CLIENT_ID = rawClientId.replace(/['"]/g, '').trim() || "dummy_client_id_for_init_only";
 

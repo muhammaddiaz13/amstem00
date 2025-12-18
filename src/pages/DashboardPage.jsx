@@ -13,14 +13,9 @@ const DashboardPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch tasks dari API saat komponen dimuat atau user berubah
   useEffect(() => {
-    // PENTING: Reset tasks setiap kali user berubah (baik login, logout, atau switch akun)
-    // Ini mencegah data akun lama tampil sesaat (ghosting data) di akun baru
     setTasks([]); 
     
-    // Safety check: Pastikan user memiliki token sebelum fetch ke backend
-    // Jika tidak ada token (tapi user object ada karena glitch), jangan fetch
     if (user && user.token) {
       fetchTasks();
     }
@@ -50,7 +45,6 @@ const DashboardPage = () => {
   const handleAddTask = async (newTask) => {
     const toastId = toast.loading("Creating assignment...");
     try {
-      // taskService.create sudah menghandle transformasi data
       const createdTask = await taskService.create({
         ...newTask,
         taskStatus: 'Unfinished',

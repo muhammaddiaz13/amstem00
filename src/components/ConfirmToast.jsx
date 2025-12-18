@@ -20,9 +20,6 @@ const ConfirmToastContent = ({ t, message, onConfirm }) => {
       : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200 dark:shadow-none'
   };
 
-  // Gunakan Portal untuk merender di luar hierarki DOM normal (ke body)
-  // Ini mencegah masalah z-index, overflow, atau transform dari parent (seperti animasi fade-in Dashboard)
-  // Class 'fixed inset-0' memastikan overlay memenuhi seluruh layar viewport
   return createPortal(
     <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm w-screen h-screen transition-opacity duration-300">
       <div 

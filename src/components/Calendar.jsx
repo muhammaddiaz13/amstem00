@@ -17,11 +17,9 @@ const Calendar = ({
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const mobileDayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
-  // Helper function to get days in month
   const daysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   const firstDayOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
 
-  // Helper untuk format tanggal lokal YYYY-MM-DD matching the API format
   const toLocalDateString = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -30,7 +28,6 @@ const Calendar = ({
   };
 
   const getTasksForDay = (day) => {
-    // Create date object for the specific day in the grid
     const checkDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
     const dateString = toLocalDateString(checkDate);
     return tasks.filter(task => task.dueDate === dateString);
@@ -41,27 +38,22 @@ const Calendar = ({
     const startDay = firstDayOfMonth(currentDate);
     const days = [];
 
-    // Optimize: Calculate comparison strings once
     const todayString = toLocalDateString(new Date());
     const selectedDateString = toLocalDateString(selectedDate);
 
-    // Empty cells for previous month
     for (let i = 0; i < startDay; i++) {
       days.push(<div key={`empty-${i}`} className="h-16 md:h-24 border border-transparent"></div>);
     }
 
-    // Days of current month
     for (let day = 1; day <= totalDays; day++) {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
       const dateString = toLocalDateString(date);
       
-      // Bandingkan string yang sudah dikalkulasi
       const isToday = todayString === dateString;
       const isSelected = selectedDateString === dateString;
       
       const dayTasks = getTasksForDay(day);
 
-      // Check priorities for dots
       const hasHighPriority = dayTasks.some(task => task.priority === 'High');
       const hasMediumPriority = dayTasks.some(task => task.priority === 'Medium');
       const hasLowPriority = dayTasks.some(task => task.priority === 'Low');

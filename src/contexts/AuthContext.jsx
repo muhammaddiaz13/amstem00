@@ -25,33 +25,24 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData) => {
-    // Pastikan simpan ke localStorage DULUAN sebelum update state
-    // Ini menjamin data persisten sudah ada sebelum komponen lain re-render
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
   };
 
   const logout = () => {
-    // 1. Kosongkan state user di memori
     setUser(null);
     
-    // 2. NUCLEAR OPTION: Hapus SEMUA data di localStorage
-    // Kita simpan dulu preference theme agar user tidak kaget theme berubah
     const savedTheme = localStorage.getItem('theme');
     
-    // Hapus total
     localStorage.clear();
     
-    // Kembalikan theme
     if (savedTheme) {
         localStorage.setItem('theme', savedTheme);
     }
     
-    // Log untuk debugging
     console.log("Session cleared completely.");
   };
 
-  // Fungsi baru untuk update data user tanpa logout
   const updateUser = (updatedData) => {
     setUser((prevUser) => {
       if (!prevUser) return null;

@@ -33,7 +33,6 @@ const Sidebar = ({ isOpen, onClose }) => {
         : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200'
     }`;
 
-  // Reset form saat modal profile dibuka
   useEffect(() => {
     if (user && isProfileModalOpen) {
       setEditUsername(user.username || '');
@@ -41,7 +40,6 @@ const Sidebar = ({ isOpen, onClose }) => {
     }
   }, [user, isProfileModalOpen]);
 
-  // Helper untuk mendapatkan inisial dengan aman
   const getUserInitial = () => {
     if (user && user.username && user.username.length > 0) {
       return user.username[0].toUpperCase();
@@ -49,16 +47,13 @@ const Sidebar = ({ isOpen, onClose }) => {
     return '?';
   };
 
-  // Helper untuk mendapatkan username dengan aman
   const getUsername = () => {
     return (user && user.username) ? user.username : 'Anonymous';
   };
 
-  // Handler Ganti Foto (Preview Local)
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validasi ukuran (misal max 2MB)
       if (file.size > 2 * 1024 * 1024) {
         toast.error("Image size too large (max 2MB)");
         return;
@@ -100,7 +95,6 @@ const Sidebar = ({ isOpen, onClose }) => {
     setIsEditingProfile(true);
     try {
       if (updateUser) {
-        // Simpan username DAN avatar (base64 string) ke context/local storage
         updateUser({ 
           username: editUsername,
           avatar: avatarPreview 
@@ -150,10 +144,8 @@ const Sidebar = ({ isOpen, onClose }) => {
       if(window.innerWidth < 768) onClose();
   };
 
-  // --- COMPONENT AVATAR REUSABLE (Agar konsisten antara sidebar & modal) ---
   const UserAvatar = ({ size = "sm", src, alt, initial }) => {
     const sizeClasses = size === "lg" ? "w-28 h-28 text-5xl" : "w-10 h-10 text-lg";
-    // Dot hijau indikator online
     const dotClasses = size === "lg" 
       ? "w-6 h-6 border-4 right-1 bottom-1" 
       : "w-3 h-3 border-2 right-0 bottom-0";
@@ -172,7 +164,6 @@ const Sidebar = ({ isOpen, onClose }) => {
           </div>
         )}
         
-        {/* GREEN ONLINE DOT (Hanya muncul jika user login) */}
         {user && (
           <span className={`absolute ${dotClasses} bg-green-500 border-white dark:border-gray-900 rounded-full z-10`}></span>
         )}

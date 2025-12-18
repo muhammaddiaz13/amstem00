@@ -28,7 +28,6 @@ function ProgressPage() {
     }
   }, [user]);
 
-  // Calculate progress statistics
   useEffect(() => {
     if (tasks.length === 0) {
       setProgressStats({

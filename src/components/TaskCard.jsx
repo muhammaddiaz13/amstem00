@@ -26,7 +26,7 @@ const TaskCard = ({ task, onUpdate, onDelete }) => {
   };
 
   const handleEditClick = (e) => {
-    e.stopPropagation(); // Mencegah event bubbling
+    e.stopPropagation();
     if (!user) {
       openLoginModal();
     } else {
@@ -35,11 +35,10 @@ const TaskCard = ({ task, onUpdate, onDelete }) => {
   };
 
   const handleDeleteClick = (e) => {
-    e.stopPropagation(); // Mencegah event bubbling agar tidak mengklik card
+    e.stopPropagation(); 
     if (!user) {
       openLoginModal();
     } else {
-      // Panggil ConfirmToast sebelum menjalankan onDelete
       ConfirmToast(
         `Are you sure you want to delete "${task.taskTitle}"?`,
         () => onDelete(task.id)

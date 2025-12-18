@@ -13,10 +13,6 @@ export default function Tour() {
     const step = steps[stepIndex];
     const [rect, setRect] = useState(null);
     
-    // useEffect(() => {
-    //   const el = document.querySelector(step.selector);
-    //   if (el) setRect(el.getBoundingClientRect());
-    // }, [step]);
 
     useEffect(() => {
     const el = document.querySelector(step.selector);

@@ -35,7 +35,6 @@ exports.updateTask = async (req, res) => {
     const { title, description, category, priority, status, due_date } = req.body;
 
     try {
-        // Pastikan tugas itu milik user yang login
         const checkOwner = await db.query('SELECT * FROM tasks WHERE id = $1 AND user_id = $2', [id, req.user.id]);
         if (checkOwner.rows.length === 0) {
             return res.status(404).json({ message: 'Tugas tidak ditemukan atau bukan milik Anda.' });

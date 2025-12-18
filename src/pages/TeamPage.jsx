@@ -6,10 +6,6 @@ const TeamPage = () => {
   const { user, openLoginModal } = useAuth();
   const username = user ? user.username : 'Guest';
 
-  // PERUBAHAN UTAMA: Key storage dinamis berdasarkan user ID
-  // Jika user A login -> 'taskAssignments_123'
-  // Jika user B login -> 'taskAssignments_456'
-  // Guest -> 'taskAssignments_guest'
   const storageKey = user ? `taskAssignments_${user.id}` : 'taskAssignments_guest';
 
   const [taskAssignments, setTaskAssignments] = useState([]);
@@ -20,7 +16,6 @@ const TeamPage = () => {
   const [priorityFilter, setPriorityFilter] = useState('all');
 
   useEffect(() => {
-    // Load data menggunakan Dynamic Key
     const savedAssignments = JSON.parse(localStorage.getItem(storageKey));
     
     if (savedAssignments) {
@@ -28,11 +23,9 @@ const TeamPage = () => {
       setTaskAssignments(cleanedAssignments);
     } else {
       setTaskAssignments([]);
-      // Jangan timpa jika storage kosong, biarkan null atau inisialisasi di memori saja
     }
-  }, [storageKey]); // Re-run saat user berubah (storageKey berubah)
+  }, [storageKey]); 
 
-  // Helper untuk save
   const saveToStorage = (data) => {
     localStorage.setItem(storageKey, JSON.stringify(data));
   };
@@ -74,7 +67,7 @@ const TeamPage = () => {
     }
 
     setTaskAssignments(updatedAssignments);
-    saveToStorage(updatedAssignments); // Gunakan fungsi helper
+    saveToStorage(updatedAssignments); 
     setShowModal(false);
     setEditingAssignment(null);
   };
@@ -610,7 +603,6 @@ const TeamPage = () => {
                             <div>
                               <div className="flex justify-between items-start mb-2">
                                 <h5 className="font-medium text-gray-800 dark:text-gray-200">{assignment.taskName}</h5>
-                                {/* Tombol aksi untuk setiap task */}
                                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                   <button
                                     onClick={() => {
