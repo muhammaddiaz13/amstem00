@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { authService } from '../services/authService.js';
-// Toaster removed
 import GoogleAuthButton from '../components/GoogleAuthButton';
 
 const LoginPage = () => {
@@ -14,11 +13,9 @@ const LoginPage = () => {
   const { login, logout } = useAuth();
   const navigate = useNavigate();
   
-  // PENTING: Force logout saat masuk halaman login
-  // Ini mencegah data akun A 'terbawa' saat login ke akun B
   useEffect(() => {
     logout();
-  }, []); // Run sekali saat mount
+  }, []); 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,12 +24,10 @@ const LoginPage = () => {
 
     try {
       console.log("Attempting login...");
-      // authService biasanya mengembalikan response.data yang berisi { message, token, user }
       const responseData = await authService.login(email, password);
       
       console.log("Login success:", responseData);
       
-      // PERBAIKAN: Unwrap data user dan token
       const userToLogin = responseData.user ? {
           ...responseData.user,
           token: responseData.token

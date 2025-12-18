@@ -5,7 +5,6 @@ const ThemeContext = createContext();
 export const useTheme = () => useContext(ThemeContext);
 
 export const ThemeProvider = ({ children }) => {
-  // Default ke 'light' jika tidak ada di localStorage
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme');
@@ -19,12 +18,9 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     const root = window.document.documentElement;
     
-    // Hapus class lama
     root.classList.remove('light', 'dark');
-    // Tambah class baru
     root.classList.add(theme);
     
-    // Simpan ke localStorage
     localStorage.setItem('theme', theme);
   }, [theme]);
 

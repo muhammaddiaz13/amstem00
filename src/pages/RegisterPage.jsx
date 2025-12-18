@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { authService } from '../services/authService.js';
-// Toaster removed
 import GoogleAuthButton from '../components/GoogleAuthButton';
 
 const RegisterPage = () => {
@@ -16,7 +15,6 @@ const RegisterPage = () => {
   const { login, logout } = useAuth();
   const navigate = useNavigate();
 
-  // PENTING: Force logout saat masuk halaman register
   useEffect(() => {
     logout();
   }, []);
@@ -36,8 +34,6 @@ const RegisterPage = () => {
       const responseData = await authService.register(username, email, password);
       console.log("Register success:", responseData);
       
-      // PERBAIKAN: Unwrap data user dan token
-      // Pastikan data yang masuk ke context berbentuk { id, username, email, token }
       const userToLogin = responseData.user ? {
           ...responseData.user,
           token: responseData.token

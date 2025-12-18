@@ -12,19 +12,16 @@ import CategoryPage from './pages/CategoryPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProgressPage from './pages/ProgressPage';
-import { useAuth } from './contexts/AuthContext'; // Pastikan import ini ada
+import { useAuth } from './contexts/AuthContext'; 
 
 const App = () => {
-  // State untuk sidebar. Default: Desktop (Buka), Mobile (Tutup)
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
   const location = useLocation();
   
-  // AMBIL USER DARI CONTEXT
   const { user } = useAuth(); 
 
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
-  // Handle resize window agar responsif saat user resize browser di desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
@@ -49,11 +46,10 @@ const App = () => {
           position="top-center" 
           reverseOrder={false}
           containerStyle={{
-            zIndex: 999999, // Layer paling atas
-            top: 40, // Jarak dari atas layar
+            zIndex: 999999, 
+            top: 40, 
           }}
           toastOptions={{
-            // Styling default untuk toast card
             className: 'shadow-xl border border-gray-100 dark:border-gray-700',
             style: {
               background: '#fff',
@@ -65,7 +61,6 @@ const App = () => {
         document.body
       )}
 
-      {/* GLOBAL HEADER / NAVBAR (Visible on ALL devices) */}
       {!isAuthPage && (
         <div className="fixed top-0 left-0 w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 z-40 px-4 h-16 flex items-center justify-between shadow-sm transition-colors duration-300">
           <div className="flex items-center gap-3">
@@ -84,17 +79,11 @@ const App = () => {
             </div>
           </div>
           
-          {/* Right Side Header Elements (Optional: User Icon, Notif, etc) */}
           <div className="w-8"></div>
         </div>
       )}
 
-      {/* 
-         Main layout container
-         Logic: Removed pt-16 when on Auth Pages to prevent content from being pushed down.
-      */}
       <div className={`flex h-screen overflow-hidden ${!isAuthPage ? 'pt-16' : ''}`}>
-        {/* Sidebar */}
         {!isAuthPage && (
           <Sidebar 
             isOpen={isSidebarOpen} 
@@ -102,17 +91,11 @@ const App = () => {
           />
         )}
 
-        {/* Main Content Area */}
         <div 
           className={`flex-1 overflow-y-auto transition-all duration-300 h-full p-0
             ${!isAuthPage && isSidebarOpen ? 'md:ml-64' : 'md:ml-0'} 
           `}
         >
-          {/* 
-            KEY PROP PENTING:
-            Menggunakan user.id sebagai key memaksa React me-remount seluruh halaman saat user berubah.
-            Ini membersihkan state lama yang nyangkut.
-          */}
           <Routes key={user ? user.id : 'guest'}>
             <Route path="/" element={<Navigate to="/dashboard" />} />
             <Route path="/login" element={<LoginPage />} />
@@ -131,7 +114,6 @@ const App = () => {
         </div>
       </div>
       
-      {/* Modal global untuk meminta login */}
       <LoginRequiredModal />
     </div>
   );

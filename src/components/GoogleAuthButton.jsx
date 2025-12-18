@@ -17,7 +17,7 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
   };
 
   const googleLogin = useGoogleLogin({
-    scope: 'email profile openid', // Explicit scope untuk memastikan data profile terambil
+    scope: 'email profile openid', 
     onSuccess: async (tokenResponse) => {
       const toastId = toast.loading("Verifying Google account...");
       try {
@@ -53,14 +53,11 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
           throw new Error(data?.message || "Login failed");
         }
 
-        // PERBAIKAN PENTING: Unwrap data user
         const userToLogin = {
             ...data.user,
             token: data.token
         };
 
-        // SAFETY: Pastikan localStorage user benar-benar kosong sebelum mengisi yang baru
-        // Ini mencegah race condition di mana data lama masih terbaca
         localStorage.removeItem('user');
         
         login(userToLogin);
@@ -70,7 +67,6 @@ const GoogleAuthButton = ({ text = "Sign in with Google", isRegister = false }) 
 
       } catch (err) {
         console.error("Login Flow Error:", err);
-        // Tampilkan pesan error yang lebih spesifik dari backend
         toast.error(`${err.message}`, { 
             id: toastId,
             duration: 5000 

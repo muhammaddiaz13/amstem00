@@ -10,14 +10,12 @@ import { Toaster, toast } from 'react-hot-toast';
 const CalendarPage = () => {
   const { user, openLoginModal } = useAuth();
   
-  // Initialize tasks as an empty array
   const [tasks, setTasks] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Helper konsisten untuk format tanggal YYYY-MM-DD
   const formatDateForApi = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -25,7 +23,6 @@ const CalendarPage = () => {
     return `${year}-${month}-${day}`;
   };
 
-  // FETCH TASKS FROM API
   useEffect(() => {
     if (user) {
       fetchTasks();
@@ -91,7 +88,6 @@ const CalendarPage = () => {
     });
   };
 
-  // Logic baru dari team: Toggle Status via Checkbox (Updated with API)
   const toggleTaskStatus = async (taskId, isChecked) => {
       const taskToUpdate = tasks.find(t => t.id === taskId);
       if(!taskToUpdate) return;
@@ -121,7 +117,6 @@ const CalendarPage = () => {
       }
   };
 
-  // Filtering
   const getTasksForDate = (date) => {
     const dateString = formatDateForApi(date);
     return tasks.filter(task => task.dueDate === dateString);
@@ -129,7 +124,6 @@ const CalendarPage = () => {
 
   const selectedTasks = getTasksForDate(selectedDate);
 
-  // Helper styles based on update
   const getPriorityColor = (priority) => {
     switch(priority) {
         case 'High': return 'border-l-4 border-red-500 bg-red-50/50 dark:bg-red-900/10';
@@ -166,7 +160,6 @@ const CalendarPage = () => {
         </button>
       </div>
 
-      {/* Menggunakan Komponen Calendar yang baru dipisah */}
       {isLoading ? (
         <div className="flex justify-center py-10">
            <i className="fas fa-circle-notch fa-spin text-3xl text-blue-500"></i>
@@ -280,7 +273,6 @@ const CalendarPage = () => {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="New Assignment">
         <TaskForm 
             onSubmit={handleAddTask} 
-            // Format date YYYY-MM-DD for the form initial value using the consistent helper
             initialData={{ 
                 dueDate: formatDateForApi(selectedDate)
             }} 
